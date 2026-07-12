@@ -197,7 +197,7 @@ export function exportReportCSV() {
 export async function exportReportPDF() {
   try {
     const { jsPDF } = await import('jspdf');
-    await import('jspdf-autotable');
+    const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF();
 
     doc.setFontSize(18);
@@ -227,7 +227,7 @@ export async function exportReportPDF() {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 36,
       head: [['Vehicle', 'Model', 'Fuel Eff.', 'Revenue', 'Fuel', 'Maint.', 'Total Cost', 'ROI']],
       body: rows,
