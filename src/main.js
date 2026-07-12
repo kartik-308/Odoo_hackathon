@@ -13,6 +13,16 @@ import { renderSettings, showAddUserModal, saveUser, deleteUserRecord } from './
 
 store.init();
 
+/* Theme Management */
+function getTheme() {
+  return localStorage.getItem('transitops_theme') || 'dark';
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('transitops_theme', theme);
+}
+applyTheme(getTheme());
+
 const NAV_ITEMS = [
   { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', section: 'Main' },
   { id: 'vehicles', icon: 'directions_car', label: 'Vehicles', section: 'Main' },
@@ -118,14 +128,14 @@ function renderAppShell(content) {
             <input type="text" placeholder="Search vehicles, drivers, trips..." id="global-search" />
           </div>
           <div class="header-actions">
-            <div class="header-icon-btn" id="dark-mode-btn" onclick="window.app.toggleDarkMode()" title="Toggle theme">
-              <span class="material-icons-round" id="dark-mode-icon">light_mode</span>
-            </div>
+            <button class="header-icon-btn theme-toggle" onclick="window.app.toggleTheme()" title="Toggle theme">
+              <span class="material-icons-round">${getTheme() === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            </button>
             <div class="header-icon-btn">
               <span class="material-icons-round">notifications</span>
               ${activeBadge > 0 ? '<div class="badge-dot"></div>' : ''}
             </div>
-            <div style="font-size:.8rem;color:var(--text-muted)">${user?.role || ''}</div>
+            <div style="font-size:.78rem;color:var(--text-muted)">${user?.role || ''}</div>
           </div>
         </header>
         <div class="page-content" id="page-content">
@@ -165,17 +175,9 @@ function render() {
       if (currentPage === 'dashboard') initDashboardCharts();
       if (currentPage === 'reports') initReportCharts();
       if (window.innerWidth <= 768) document.getElementById('mobile-menu').style.display = 'flex';
-      // Apply saved theme
-      if (localStorage.getItem('transitops_dark') === 'false') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        const icon = document.getElementById('dark-mode-icon');
-        if (icon) icon.textContent = 'dark_mode';
-      }
       // Wire up global search
       const searchInput = document.getElementById('global-search');
-      if (searchInput) {
-        searchInput.addEventListener('input', e => window.app.globalSearch(e.target.value));
-      }
+      if (searchInput) searchInput.addEventListener('input', e => window.app.globalSearch(e.target.value));
     }, 50);
   }
 }
@@ -193,7 +195,6 @@ window.app = {
       setTimeout(() => {
         if (page === 'dashboard') initDashboardCharts();
         if (page === 'reports') initReportCharts();
-        // Re-wire search on navigate
         const searchInput = document.getElementById('global-search');
         if (searchInput) searchInput.addEventListener('input', e => window.app.globalSearch(e.target.value));
       }, 50);
@@ -233,8 +234,7 @@ window.app = {
     const region = document.getElementById('dash-filter-region')?.value || '';
     const content = document.getElementById('page-content');
     if (content) {
-      const filters = { type, status, region };
-      content.innerHTML = renderDashboard(filters);
+      content.innerHTML = renderDashboard({ type, status, region });
       setTimeout(() => initDashboardCharts(), 50);
     }
   },
@@ -284,27 +284,11 @@ window.app = {
   saveUser(id) { saveUser(id); },
   deleteUserRecord(id) { deleteUserRecord(id); },
 
-  resetData() {
-    if (confirm('Reset ALL data to defaults? This cannot be undone.')) {
-      store.resetAll();
-      showToast('All data reset to defaults', 'info');
-      this.navigate(currentPage);
-    }
-  },
-
-  toggleDarkMode() {
-    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    if (isLight) {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('transitops_dark', 'true');
-      const icon = document.getElementById('dark-mode-icon');
-      if (icon) icon.textContent = 'light_mode';
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('transitops_dark', 'false');
-      const icon = document.getElementById('dark-mode-icon');
-      if (icon) icon.textContent = 'dark_mode';
-    }
+  toggleTheme() {
+    const newTheme = getTheme() === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    const icon = document.querySelector('.theme-toggle .material-icons-round');
+    if (icon) icon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
   },
 
   globalSearch(query) {
@@ -319,11 +303,17 @@ window.app = {
     const trips = store.getTrips().filter(t =>
       t.source.toLowerCase().includes(q) || t.destination.toLowerCase().includes(q)
     );
-
-    // Navigate to most relevant section
     if (vehicles.length > 0) this.navigate('vehicles');
     else if (drivers.length > 0) this.navigate('drivers');
     else if (trips.length > 0) this.navigate('trips');
+  },
+
+  resetData() {
+    if (confirm('Reset ALL data to defaults? This cannot be undone.')) {
+      store.resetAll();
+      showToast('All data reset to defaults', 'info');
+      this.navigate(currentPage);
+    }
   },
 };
 
