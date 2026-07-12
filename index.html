@@ -7,11 +7,51 @@
   <title>TransitOps — Smart Transport Operations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
+
+  <!-- ===== PRELOADER ===== -->
+  <div id="preloader">
+    <div class="preloader-inner">
+      <div class="preloader-logo">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="56" height="56" rx="16" fill="url(#preloader_grad)"/>
+          <!-- truck body -->
+          <rect x="8" y="22" width="26" height="16" rx="3" fill="white" opacity="0.95"/>
+          <!-- cargo box -->
+          <rect x="8" y="22" width="18" height="16" rx="3" fill="white"/>
+          <!-- cab -->
+          <path d="M34 28 L34 38 L46 38 L46 32 Q46 28 42 28 Z" fill="white" opacity="0.95"/>
+          <!-- windshield -->
+          <path d="M35.5 29.5 L35.5 33 L44 33 L44 32 Q43.5 29.5 41 29.5 Z" fill="url(#preloader_grad)" opacity="0.6"/>
+          <!-- wheels -->
+          <circle cx="15" cy="38" r="4" fill="url(#preloader_grad)"/>
+          <circle cx="15" cy="38" r="1.8" fill="white" opacity="0.8"/>
+          <circle cx="38" cy="38" r="4" fill="url(#preloader_grad)"/>
+          <circle cx="38" cy="38" r="1.8" fill="white" opacity="0.8"/>
+          <!-- speed lines -->
+          <rect x="10" y="26" width="8" height="1.5" rx="0.75" fill="url(#preloader_grad)" opacity="0.4"/>
+          <rect x="10" y="29" width="5" height="1.5" rx="0.75" fill="url(#preloader_grad)" opacity="0.3"/>
+          <defs>
+            <linearGradient id="preloader_grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="55%" stop-color="#a78bfa"/>
+              <stop offset="100%" stop-color="#c084fc"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="preloader-wordmark">
+        <span class="preloader-transit">Transit</span><span class="preloader-ops">Ops</span>
+      </div>
+      <div class="preloader-tagline">Smart Transport Operations</div>
+      <div class="preloader-bar"><div class="preloader-bar-fill"></div></div>
+    </div>
+  </div>
+
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

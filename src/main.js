@@ -111,7 +111,28 @@ function renderLogin() {
     <div class="login-page">
       <div class="login-left">
         <div class="login-logo">
-          <div class="login-logo-icon"><span class="material-icons-round">local_shipping</span></div>
+          <div class="login-logo-icon">
+            <svg width="52" height="52" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="56" height="56" rx="16" fill="url(#login_grad)"/>
+              <rect x="8" y="22" width="26" height="16" rx="3" fill="white" opacity="0.95"/>
+              <rect x="8" y="22" width="18" height="16" rx="3" fill="white"/>
+              <path d="M34 28 L34 38 L46 38 L46 32 Q46 28 42 28 Z" fill="white" opacity="0.95"/>
+              <path d="M35.5 29.5 L35.5 33 L44 33 L44 32 Q43.5 29.5 41 29.5 Z" fill="url(#login_grad)" opacity="0.55"/>
+              <circle cx="15" cy="38" r="4" fill="url(#login_grad)"/>
+              <circle cx="15" cy="38" r="1.8" fill="white" opacity="0.85"/>
+              <circle cx="38" cy="38" r="4" fill="url(#login_grad)"/>
+              <circle cx="38" cy="38" r="1.8" fill="white" opacity="0.85"/>
+              <rect x="10" y="26" width="8" height="1.5" rx="0.75" fill="white" opacity="0.35"/>
+              <rect x="10" y="29" width="5" height="1.5" rx="0.75" fill="white" opacity="0.25"/>
+              <defs>
+                <linearGradient id="login_grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="55%" stop-color="#a78bfa"/>
+                  <stop offset="100%" stop-color="#c084fc"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
           <div><h1>TransitOps</h1><span>Smart Transport Operations</span></div>
         </div>
         <ul class="login-features">
@@ -158,7 +179,26 @@ function renderAppShell(content) {
     <div class="app-layout">
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-logo"><span class="material-icons-round">local_shipping</span></div>
+          <div class="sidebar-logo">
+            <svg width="36" height="36" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="56" height="56" rx="14" fill="url(#sb_grad)"/>
+              <rect x="8" y="22" width="26" height="16" rx="3" fill="white" opacity="0.95"/>
+              <rect x="8" y="22" width="18" height="16" rx="3" fill="white"/>
+              <path d="M34 28 L34 38 L46 38 L46 32 Q46 28 42 28 Z" fill="white" opacity="0.95"/>
+              <path d="M35.5 29.5 L35.5 33 L44 33 L44 32 Q43.5 29.5 41 29.5 Z" fill="url(#sb_grad)" opacity="0.55"/>
+              <circle cx="15" cy="38" r="4" fill="url(#sb_grad)"/>
+              <circle cx="15" cy="38" r="1.8" fill="white" opacity="0.85"/>
+              <circle cx="38" cy="38" r="4" fill="url(#sb_grad)"/>
+              <circle cx="38" cy="38" r="1.8" fill="white" opacity="0.85"/>
+              <defs>
+                <linearGradient id="sb_grad" x1="0" y1="0" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="55%" stop-color="#a78bfa"/>
+                  <stop offset="100%" stop-color="#c084fc"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
           <div><h2>TransitOps</h2><span>Fleet Operations</span></div>
         </div>
         <nav class="sidebar-nav">
@@ -741,3 +781,14 @@ window.app = {
 
 // Initial render
 render();
+
+// Hide preloader once app is ready
+(function hidePreloader() {
+  const pre = document.getElementById('preloader');
+  if (!pre) return;
+  // Small delay so the bar animation plays through
+  setTimeout(() => {
+    pre.classList.add('preloader-done');
+    setTimeout(() => pre.remove(), 600);
+  }, 1400);
+})();
