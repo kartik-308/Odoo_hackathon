@@ -10,6 +10,7 @@ const STORE_KEYS = {
   MAINTENANCE: 'transitops_maintenance',
   FUEL_LOGS: 'transitops_fuel_logs',
   EXPENSES: 'transitops_expenses',
+  VEHICLE_DOCS: 'transitops_vehicle_docs',
   CURRENT_USER: 'transitops_current_user',
   INITIALIZED: 'transitops_initialized',
 };
@@ -82,6 +83,14 @@ function seedData() {
     { id: generateId(), vehicleId: vehicles[1].id, type: 'Parking', description: 'Overnight parking SF depot', amount: 35, date: '2026-07-06', tripId: trips[2].id },
   ];
 
+  const vehicleDocs = [
+    { id: generateId(), vehicleId: vehicles[0].id, name: 'Insurance Certificate', type: 'Insurance', expiryDate: '2027-03-15', notes: 'Full comprehensive coverage', uploadedAt: '2026-06-01T10:00:00' },
+    { id: generateId(), vehicleId: vehicles[0].id, name: 'Registration Card', type: 'Registration', expiryDate: '2028-01-01', notes: 'State registration renewal', uploadedAt: '2026-05-20T14:30:00' },
+    { id: generateId(), vehicleId: vehicles[1].id, name: 'Safety Inspection Report', type: 'Inspection', expiryDate: '2027-01-10', notes: 'Annual safety check passed', uploadedAt: '2026-07-01T09:00:00' },
+    { id: generateId(), vehicleId: vehicles[2].id, name: 'Insurance Policy', type: 'Insurance', expiryDate: '2026-09-30', notes: 'Third-party liability', uploadedAt: '2026-04-15T11:00:00' },
+    { id: generateId(), vehicleId: vehicles[3].id, name: 'Emissions Certificate', type: 'Permit', expiryDate: '2027-06-01', notes: 'Euro 6 emissions compliant', uploadedAt: '2026-06-20T16:00:00' },
+  ];
+
   set(STORE_KEYS.USERS, users);
   set(STORE_KEYS.VEHICLES, vehicles);
   set(STORE_KEYS.DRIVERS, drivers);
@@ -89,6 +98,7 @@ function seedData() {
   set(STORE_KEYS.MAINTENANCE, maintenanceLogs);
   set(STORE_KEYS.FUEL_LOGS, fuelLogs);
   set(STORE_KEYS.EXPENSES, expenses);
+  set(STORE_KEYS.VEHICLE_DOCS, vehicleDocs);
   localStorage.setItem(STORE_KEYS.INITIALIZED, 'true');
 }
 
@@ -206,6 +216,26 @@ export const store = {
   },
   getAvailableVehicles() {
     return get(STORE_KEYS.VEHICLES).filter(v => v.status === 'Available');
+  },
+
+  /* Vehicle Documents */
+  getVehicleDocs(vehicleId) {
+    return get(STORE_KEYS.VEHICLE_DOCS).filter(d => d.vehicleId === vehicleId);
+  },
+  getAllVehicleDocs() {
+    return get(STORE_KEYS.VEHICLE_DOCS);
+  },
+  addVehicleDoc(doc) {
+    const docs = get(STORE_KEYS.VEHICLE_DOCS);
+    const newDoc = { id: generateId(), ...doc, uploadedAt: new Date().toISOString() };
+    docs.push(newDoc);
+    set(STORE_KEYS.VEHICLE_DOCS, docs);
+    return { success: true, doc: newDoc };
+  },
+  deleteVehicleDoc(id) {
+    const docs = get(STORE_KEYS.VEHICLE_DOCS);
+    set(STORE_KEYS.VEHICLE_DOCS, docs.filter(d => d.id !== id));
+    return { success: true };
   },
 
   /* Drivers */

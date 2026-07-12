@@ -1,4 +1,4 @@
-﻿# 🚚 TransitOps — Smart Transport Operations Platform
+# 🚚 TransitOps — Smart Transport Operations Platform
 
 > Built for the Odoo Hackathon (8-Hour Challenge)
 
@@ -33,7 +33,10 @@ TransitOps is a centralized, end-to-end transport operations platform that digit
 
 ### Quality-of-Life Features
 - 🔍 **Live Global Search** — Search vehicles, drivers, and trips from the header bar with instant dropdown results
-- 🔔 **Notification Center** — Bell icon shows alerts for expired/expiring licenses, active maintenance, and dispatched trips
+- 🔔 **Notification Center** — Bell icon shows alerts for expired/expiring licenses, active maintenance, dispatched trips, and expiring vehicle documents
+- 📄 **Vehicle Document Management** — Attach, view, and manage documents (Insurance, Registration, Inspection, Permits) per vehicle with expiry tracking
+- 🔃 **Table Sorting** — Click any column header to sort tables ascending/descending across all data pages
+- 🔒 **Filter Persistence** — Filter selections are remembered when navigating between pages
 - 🌙 **Dark / Light Mode** — Persisted theme toggle
 - 📤 **CSV & PDF Export** — Export vehicles, drivers, trips, and full fleet reports
 - 📱 **Responsive Design** — Works on mobile with a collapsible sidebar

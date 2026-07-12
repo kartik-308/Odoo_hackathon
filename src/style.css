@@ -920,6 +920,63 @@ body::after {
 }
 .notif-empty .material-icons-round { font-size: 2rem; color: var(--accent-green); }
 
+/* ===== VEHICLE DOCUMENTS ===== */
+.doc-list { display: flex; flex-direction: column; gap: .5rem; }
+.doc-item {
+  display: flex; align-items: center; gap: .75rem;
+  padding: .75rem .85rem;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+}
+.doc-item:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-card-hover);
+}
+.doc-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--brand-bg);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--brand);
+  flex-shrink: 0;
+}
+.doc-icon .material-icons-round { font-size: 1.1rem; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: .85rem; font-weight: 600; color: var(--text-primary); margin-bottom: .2rem; }
+.doc-meta { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.doc-notes { font-size: .72rem; color: var(--text-muted); margin-top: .25rem; }
+.doc-empty {
+  padding: 2rem; text-align: center;
+  color: var(--text-muted); font-size: .85rem;
+  display: flex; flex-direction: column; align-items: center; gap: .5rem;
+}
+.doc-empty .material-icons-round { font-size: 2.5rem; opacity: .4; }
+.doc-actions { display: flex; align-items: center; gap: .2rem; flex-shrink: 0; }
+.doc-icon.has-file { background: var(--accent-green-bg); color: var(--accent-green); }
+.file-upload-area {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1.25rem; gap: .15rem;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+}
+.file-upload-area:hover, .file-upload-area.drag-over {
+  border-color: var(--brand);
+  background: var(--brand-bg);
+}
+.file-upload-area.file-selected {
+  border-color: var(--accent-green);
+  background: var(--accent-green-bg);
+}
+.file-upload-text {
+  font-size: .82rem; font-weight: 500; color: var(--text-secondary);
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
