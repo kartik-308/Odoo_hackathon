@@ -92,10 +92,13 @@ function renderAppShell(content) {
           <div><h2>TransitOps</h2><span>Fleet Operations</span></div>
         </div>
         <nav class="sidebar-nav">
-          ${Object.entries(sections).map(([section, items]) => `
+          ${Object.entries(sections).map(([section, items]) => {
+            const visibleItems = items.filter(item => store.canAccess(item.id));
+            if (visibleItems.length === 0) return '';
+            return `
             <div class="nav-section">
               <div class="nav-section-title">${section}</div>
-              ${items.map(item => `
+              ${visibleItems.map(item => `
                 <div class="nav-item ${currentPage === item.id ? 'active' : ''}" onclick="window.app.navigate('${item.id}')">
                   <span class="material-icons-round">${item.icon}</span>
                   ${item.label}
@@ -103,7 +106,7 @@ function renderAppShell(content) {
                 </div>
               `).join('')}
             </div>
-          `).join('')}
+          `; }).join('')}
         </nav>
         <div class="sidebar-footer">
           <div class="sidebar-user">
@@ -146,7 +149,23 @@ function renderAppShell(content) {
   `;
 }
 
+function renderAccessDenied() {
+  return `
+    <div class="access-denied">
+      <div class="access-denied-card">
+        <span class="material-icons-round" style="font-size:3rem;color:var(--accent-red);margin-bottom:1rem">lock</span>
+        <h2>Access Denied</h2>
+        <p>Your role does not have permission to view this page.</p>
+        <button class="btn btn-primary" onclick="window.app.navigate('dashboard')" style="margin-top:1rem">
+          <span class="material-icons-round">arrow_back</span> Back to Dashboard
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function getPageContent(page) {
+  if (!store.canAccess(page)) return renderAccessDenied();
   switch (page) {
     case 'dashboard': return renderDashboard();
     case 'vehicles': return renderVehicles();

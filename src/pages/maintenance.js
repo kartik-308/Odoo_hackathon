@@ -5,12 +5,12 @@ export function renderMaintenance() {
   const filterStatus = document.getElementById('maint-filter-status')?.value || '';
   let logs = store.getMaintenanceLogs();
   if (filterStatus) logs = logs.filter(m => m.status === filterStatus);
-
+  const canEdit = store.hasFullAccess('maintenance');
   return `
     <div class="page-header">
       <div><h1>Maintenance</h1><p>Vehicle maintenance records and workflows</p></div>
       <div class="page-actions">
-        <button class="btn btn-primary" onclick="window.app.showAddMaintenance()"><span class="material-icons-round">add</span> Add Record</button>
+        ${canEdit ? `<button class="btn btn-primary" onclick="window.app.showAddMaintenance()"><span class="material-icons-round">add</span> Add Record</button>` : ''}
       </div>
     </div>
     <div class="filter-bar">
@@ -20,6 +20,7 @@ export function renderMaintenance() {
         <option value="Closed" ${filterStatus === 'Closed' ? 'selected' : ''}>Closed</option>
       </select>
     </div>
+    ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to maintenance</div>' : ''}
     <div class="table-container">
       <table class="data-table">
         <thead><tr><th>Vehicle</th><th>Type</th><th>Description</th><th>Cost</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Actions</th></tr></thead>
@@ -35,7 +36,7 @@ export function renderMaintenance() {
               <td>${m.endDate ? formatDate(m.endDate) : '—'}</td>
               <td>${statusBadge(m.status)}</td>
               <td class="table-actions">
-                ${m.status === 'Active' ? `<button class="btn btn-success btn-sm" onclick="window.app.closeMaintenance('${m.id}')"><span class="material-icons-round">check_circle</span> Close</button>` : ''}
+                ${canEdit && m.status === 'Active' ? `<button class="btn btn-success btn-sm" onclick="window.app.closeMaintenance('${m.id}')"><span class="material-icons-round">check_circle</span> Close</button>` : ''}
               </td>
             </tr>`;
   }).join('')}

@@ -5,6 +5,7 @@ export function renderFuelExpenses() {
   const fuelLogs = store.getFuelLogs();
   const expenses = store.getExpenses();
   const vehicles = store.getVehicles();
+  const canEdit = store.hasFullAccess('fuel');
 
   const totalFuel = fuelLogs.reduce((s, f) => s + f.cost, 0);
   const totalMaint = store.getMaintenanceLogs().reduce((s, m) => s + m.cost, 0);
@@ -15,8 +16,10 @@ export function renderFuelExpenses() {
     <div class="page-header">
       <div><h1>Fuel & Expense Management</h1><p>Track operational costs across your fleet</p></div>
       <div class="page-actions">
+        ${canEdit ? `
         <button class="btn btn-success btn-sm" onclick="window.app.showAddFuel()"><span class="material-icons-round">local_gas_station</span> Log Fuel</button>
         <button class="btn btn-primary btn-sm" onclick="window.app.showAddExpense()"><span class="material-icons-round">receipt_long</span> Add Expense</button>
+        ` : ''}
       </div>
     </div>
 
@@ -26,6 +29,8 @@ export function renderFuelExpenses() {
       <div class="summary-card"><h4>Other Expenses</h4><div class="value" style="color:var(--accent-blue)">${formatCurrency(totalOther)}</div></div>
       <div class="summary-card"><h4>Total Operational Cost</h4><div class="value" style="color:var(--accent-purple)">${formatCurrency(totalOps)}</div></div>
     </div>
+
+    ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to fuel & expenses</div>' : ''}
 
     <div class="tabs">
       <button class="tab-btn active" onclick="window.app.switchFuelTab('fuel')">Fuel Logs</button>

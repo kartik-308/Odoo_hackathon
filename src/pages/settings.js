@@ -36,16 +36,17 @@ export function renderSettings() {
       <h3 style="font-size:.95rem;font-weight:700;margin-bottom:1rem">Role Permissions</h3>
       <div class="table-container">
         <table class="data-table">
-          <thead><tr><th>Permission</th><th>Fleet Manager</th><th>Driver</th><th>Safety Officer</th><th>Financial Analyst</th></tr></thead>
+          <thead><tr><th>Module</th>${Object.keys(store.getPermissions()).map(r => `<th>${r}</th>`).join('')}</tr></thead>
           <tbody>
-            <tr><td>Dashboard</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
-            <tr><td>Vehicle Management</td><td>✅</td><td>👁️</td><td>👁️</td><td>👁️</td></tr>
-            <tr><td>Driver Management</td><td>✅</td><td>👁️</td><td>✅</td><td>👁️</td></tr>
-            <tr><td>Trip Dispatch</td><td>✅</td><td>✅</td><td>👁️</td><td>👁️</td></tr>
-            <tr><td>Maintenance</td><td>✅</td><td>👁️</td><td>👁️</td><td>👁️</td></tr>
-            <tr><td>Fuel & Expenses</td><td>✅</td><td>✅</td><td>👁️</td><td>✅</td></tr>
-            <tr><td>Reports & Analytics</td><td>✅</td><td>👁️</td><td>✅</td><td>✅</td></tr>
-            <tr><td>Settings & RBAC</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+            ${['dashboard','vehicles','drivers','trips','maintenance','fuel','reports','settings'].map(mod => {
+              const label = mod.charAt(0).toUpperCase() + mod.slice(1);
+              const perms = store.getPermissions();
+              return `<tr><td>${label}</td>${Object.keys(perms).map(role => {
+                const level = perms[role][mod] || 'none';
+                const icon = level === 'full' ? '✅' : level === 'view' ? '👁️' : '❌';
+                return `<td>${icon}</td>`;
+              }).join('')}</tr>`;
+            }).join('')}
           </tbody>
         </table>
       </div>

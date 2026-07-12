@@ -92,9 +92,50 @@ function seedData() {
   localStorage.setItem(STORE_KEYS.INITIALIZED, 'true');
 }
 
+/* ---- RBAC Permissions ---- */
+const PERMISSIONS = {
+  'Fleet Manager': {
+    dashboard: 'full', vehicles: 'full', drivers: 'full',
+    trips: 'full', maintenance: 'full', fuel: 'full',
+    reports: 'full', settings: 'full',
+  },
+  'Driver': {
+    dashboard: 'full', vehicles: 'view', drivers: 'view',
+    trips: 'full', maintenance: 'view', fuel: 'full',
+    reports: 'view', settings: 'none',
+  },
+  'Safety Officer': {
+    dashboard: 'full', vehicles: 'view', drivers: 'full',
+    trips: 'view', maintenance: 'view', fuel: 'view',
+    reports: 'full', settings: 'none',
+  },
+  'Financial Analyst': {
+    dashboard: 'full', vehicles: 'view', drivers: 'view',
+    trips: 'view', maintenance: 'view', fuel: 'full',
+    reports: 'full', settings: 'none',
+  },
+};
+
 /* ---- Store API ---- */
 export const store = {
   init() { seedData(); },
+
+  /* RBAC */
+  canAccess(module) {
+    const user = this.getCurrentUser();
+    if (!user) return false;
+    const perms = PERMISSIONS[user.role];
+    if (!perms) return false;
+    return perms[module] && perms[module] !== 'none';
+  },
+  hasFullAccess(module) {
+    const user = this.getCurrentUser();
+    if (!user) return false;
+    const perms = PERMISSIONS[user.role];
+    if (!perms) return false;
+    return perms[module] === 'full';
+  },
+  getPermissions() { return PERMISSIONS; },
 
   /* Auth */
   login(email, password) {
