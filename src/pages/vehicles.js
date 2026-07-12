@@ -9,21 +9,28 @@ import {
 } from "../utils.js";
 import { sortData, renderSortIcon } from "../sorting.js";
 
-const currentFilters = { type: "", status: "" };
+const currentFilters = { type: "", status: "", search: "" };
 
 export function renderVehicles() {
   const typeEl = document.getElementById("veh-filter-type");
   const statusEl = document.getElementById("veh-filter-status");
-  
+  const searchEl = document.getElementById("veh-search");
+
   if (typeEl) currentFilters.type = typeEl.value;
   if (statusEl) currentFilters.status = statusEl.value;
+  if (searchEl !== null) currentFilters.search = searchEl.value;
 
   const filterType = currentFilters.type;
   const filterStatus = currentFilters.status;
+  const filterSearch = currentFilters.search.toLowerCase();
   let vehicles = store.getVehicles();
   if (filterType) vehicles = vehicles.filter((v) => v.type === filterType);
-  if (filterStatus)
-    vehicles = vehicles.filter((v) => v.status === filterStatus);
+  if (filterStatus) vehicles = vehicles.filter((v) => v.status === filterStatus);
+  if (filterSearch) vehicles = vehicles.filter((v) =>
+    v.regNumber.toLowerCase().includes(filterSearch) ||
+    v.name.toLowerCase().includes(filterSearch) ||
+    (v.region || "").toLowerCase().includes(filterSearch)
+  );
   vehicles = sortData(vehicles, 'vehicles');
   const canEdit = store.hasFullAccess("vehicles");
 
@@ -45,6 +52,9 @@ export function renderVehicles() {
     </div>
 
     <div class="filter-bar">
+      <input type="text" id="veh-search" placeholder="Search reg number, model, region…"
+        value="${currentFilters.search}"
+        oninput="window.app.navigate('vehicles')" style="min-width:220px" />
       <select id="veh-filter-type" onchange="window.app.navigate('vehicles')">
         <option value="">All Types</option>
         <option value="Van" ${filterType === "Van" ? "selected" : ""}>Van</option>

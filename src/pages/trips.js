@@ -2,14 +2,25 @@ import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal, exportCSV } from '../utils.js';
 import { sortData, renderSortIcon } from '../sorting.js';
 
-const currentFilters = { status: "" };
+const currentFilters = { status: "", search: "" };
 
 export function renderTrips() {
   const statusEl = document.getElementById('trip-filter-status');
+  const searchEl = document.getElementById('trip-search');
   if (statusEl) currentFilters.status = statusEl.value;
+  if (searchEl !== null) currentFilters.search = searchEl.value;
   const filterStatus = currentFilters.status;
+  const filterSearch = currentFilters.search.toLowerCase();
   let trips = store.getTrips();
   if (filterStatus) trips = trips.filter(t => t.status === filterStatus);
+  if (filterSearch) trips = trips.filter(t => {
+    const v = store.getVehicleById(t.vehicleId);
+    const d = store.getDriverById(t.driverId);
+    return t.source.toLowerCase().includes(filterSearch) ||
+      t.destination.toLowerCase().includes(filterSearch) ||
+      (v?.regNumber || '').toLowerCase().includes(filterSearch) ||
+      (d?.name || '').toLowerCase().includes(filterSearch);
+  });
   trips = sortData(trips, 'trips');
   const canEdit = store.hasFullAccess('trips');
   return `
@@ -21,6 +32,9 @@ export function renderTrips() {
       </div>
     </div>
     <div class="filter-bar">
+      <input type="text" id="trip-search" placeholder="Search route, vehicle, driver…"
+        value="${currentFilters.search}"
+        oninput="window.app.navigate('trips')" style="min-width:220px" />
       <select id="trip-filter-status" onchange="window.app.navigate('trips')">
         <option value="">All Status</option>
         <option value="Draft" ${filterStatus === 'Draft' ? 'selected' : ''}>Draft</option>

@@ -2,14 +2,22 @@ import { store } from '../store.js';
 import { showToast, formatDate, statusBadge, createModal, closeModal, exportCSV, isLicenseExpired, licenseExpiresSoon } from '../utils.js';
 import { sortData, renderSortIcon } from '../sorting.js';
 
-const currentFilters = { status: "" };
+const currentFilters = { status: "", search: "" };
 
 export function renderDrivers() {
   const statusEl = document.getElementById('drv-filter-status');
+  const searchEl = document.getElementById('drv-search');
   if (statusEl) currentFilters.status = statusEl.value;
+  if (searchEl !== null) currentFilters.search = searchEl.value;
   const filterStatus = currentFilters.status;
+  const filterSearch = currentFilters.search.toLowerCase();
   let drivers = store.getDrivers();
   if (filterStatus) drivers = drivers.filter(d => d.status === filterStatus);
+  if (filterSearch) drivers = drivers.filter(d =>
+    d.name.toLowerCase().includes(filterSearch) ||
+    d.licenseNumber.toLowerCase().includes(filterSearch) ||
+    d.contact.toLowerCase().includes(filterSearch)
+  );
   drivers = sortData(drivers, 'drivers');
   const canEdit = store.hasFullAccess('drivers');
   return `
@@ -25,6 +33,9 @@ export function renderDrivers() {
       </div>
     </div>
     <div class="filter-bar">
+      <input type="text" id="drv-search" placeholder="Search name, license, contact…"
+        value="${currentFilters.search}"
+        oninput="window.app.navigate('drivers')" style="min-width:220px" />
       <select id="drv-filter-status" onchange="window.app.navigate('drivers')">
         <option value="">All Status</option>
         <option value="Available" ${filterStatus === 'Available' ? 'selected' : ''}>Available</option>

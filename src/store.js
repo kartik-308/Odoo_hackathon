@@ -273,9 +273,14 @@ export const store = {
     
     const vehicle = this.getVehicleById(trips[idx].vehicleId);
     const driver = this.getDriverById(trips[idx].driverId);
-    if (vehicle.status !== 'Available') return { success: false, error: 'Vehicle is not available' };
+    if (!vehicle || vehicle.status !== 'Available') return { success: false, error: 'Vehicle is not available for dispatch' };
+    if (!driver) return { success: false, error: 'Driver not found' };
+    if (driver.status === 'Suspended') return { success: false, error: 'Driver is suspended and cannot be dispatched' };
     if (driver.status !== 'Available') return { success: false, error: 'Driver is not available' };
-    
+
+    const today = new Date().toISOString().split('T')[0];
+    if (driver.licenseExpiry < today) return { success: false, error: "Driver's license has expired since trip was created" };
+
     trips[idx].status = 'Dispatched';
     trips[idx].dispatchedAt = new Date().toISOString();
     set(STORE_KEYS.TRIPS, trips);

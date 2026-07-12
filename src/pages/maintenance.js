@@ -2,14 +2,23 @@ import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal } from '../utils.js';
 import { sortData, renderSortIcon } from '../sorting.js';
 
-const currentFilters = { status: "" };
+const currentFilters = { status: "", search: "" };
 
 export function renderMaintenance() {
   const statusEl = document.getElementById('maint-filter-status');
+  const searchEl = document.getElementById('maint-search');
   if (statusEl) currentFilters.status = statusEl.value;
+  if (searchEl !== null) currentFilters.search = searchEl.value;
   const filterStatus = currentFilters.status;
+  const filterSearch = currentFilters.search.toLowerCase();
   let logs = store.getMaintenanceLogs();
   if (filterStatus) logs = logs.filter(m => m.status === filterStatus);
+  if (filterSearch) logs = logs.filter(m => {
+    const v = store.getVehicleById(m.vehicleId);
+    return (v?.regNumber || '').toLowerCase().includes(filterSearch) ||
+      m.type.toLowerCase().includes(filterSearch) ||
+      m.description.toLowerCase().includes(filterSearch);
+  });
   logs = sortData(logs, 'maintenance');
   const canEdit = store.hasFullAccess('maintenance');
   return `
@@ -20,6 +29,9 @@ export function renderMaintenance() {
       </div>
     </div>
     <div class="filter-bar">
+      <input type="text" id="maint-search" placeholder="Search vehicle, type, description…"
+        value="${currentFilters.search}"
+        oninput="window.app.navigate('maintenance')" style="min-width:220px" />
       <select id="maint-filter-status" onchange="window.app.navigate('maintenance')">
         <option value="">All Status</option>
         <option value="Active" ${filterStatus === 'Active' ? 'selected' : ''}>Active</option>

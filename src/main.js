@@ -299,6 +299,12 @@ window.app = {
     currentPage = page;
     const content = document.getElementById("page-content");
     if (content) {
+      // Preserve search input focus/cursor before re-render
+      const activeId = document.activeElement?.id;
+      const activeValue = document.activeElement?.value;
+      const selStart = document.activeElement?.selectionStart;
+      const selEnd = document.activeElement?.selectionEnd;
+
       content.innerHTML = getPageContent(page);
       document.querySelectorAll(".nav-item").forEach((el) => {
         el.classList.toggle(
@@ -306,6 +312,16 @@ window.app = {
           el.onclick?.toString().includes(`'${page}'`),
         );
       });
+
+      // Restore focus to the search input if it triggered the re-render
+      if (activeId) {
+        const el = document.getElementById(activeId);
+        if (el && el.type === "text") {
+          el.focus();
+          try { el.setSelectionRange(selStart, selEnd); } catch (_) {}
+        }
+      }
+
       setTimeout(() => {
         if (page === "dashboard") initDashboardCharts();
         if (page === "reports") initReportCharts();
