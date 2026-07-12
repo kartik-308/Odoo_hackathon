@@ -1,10 +1,16 @@
 import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal } from '../utils.js';
+import { sortData, renderSortIcon } from '../sorting.js';
+
+const currentFilters = { status: "" };
 
 export function renderMaintenance() {
-  const filterStatus = document.getElementById('maint-filter-status')?.value || '';
+  const statusEl = document.getElementById('maint-filter-status');
+  if (statusEl) currentFilters.status = statusEl.value;
+  const filterStatus = currentFilters.status;
   let logs = store.getMaintenanceLogs();
   if (filterStatus) logs = logs.filter(m => m.status === filterStatus);
+  logs = sortData(logs, 'maintenance');
   const canEdit = store.hasFullAccess('maintenance');
   return `
     <div class="page-header">
@@ -23,7 +29,16 @@ export function renderMaintenance() {
     ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to maintenance</div>' : ''}
     <div class="table-container">
       <table class="data-table">
-        <thead><tr><th>Vehicle</th><th>Type</th><th>Description</th><th>Cost</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr>
+          <th onclick="window.app.sortBy('maintenance', 'vehicleId')" style="cursor:pointer">Vehicle ${renderSortIcon('maintenance', 'vehicleId')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'type')" style="cursor:pointer">Type ${renderSortIcon('maintenance', 'type')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'description')" style="cursor:pointer">Description ${renderSortIcon('maintenance', 'description')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'cost')" style="cursor:pointer">Cost ${renderSortIcon('maintenance', 'cost')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'startDate')" style="cursor:pointer">Start Date ${renderSortIcon('maintenance', 'startDate')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'endDate')" style="cursor:pointer">End Date ${renderSortIcon('maintenance', 'endDate')}</th>
+          <th onclick="window.app.sortBy('maintenance', 'status')" style="cursor:pointer">Status ${renderSortIcon('maintenance', 'status')}</th>
+          <th>Actions</th>
+        </tr></thead>
         <tbody>
           ${logs.map(m => {
     const v = store.getVehicleById(m.vehicleId);

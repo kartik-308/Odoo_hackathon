@@ -4,6 +4,7 @@
    =========================================================== */
 
 :root {
+  color-scheme: dark;
   /* Surfaces */
   --bg-primary: #09090b;
   --bg-secondary: #0c0c10;
@@ -73,6 +74,7 @@
 
 /* Light theme */
 [data-theme="light"] {
+  color-scheme: light;
   --bg-primary: #f6f6f8;
   --bg-secondary: #ffffff;
   --bg-card: rgba(255, 255, 255, 0.7);
@@ -96,6 +98,7 @@
 /* ===== BASE ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 14px; }
+option { background: var(--bg-primary); color: var(--text-primary); }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--bg-primary);

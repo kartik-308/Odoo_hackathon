@@ -1,10 +1,16 @@
 import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal, exportCSV } from '../utils.js';
+import { sortData, renderSortIcon } from '../sorting.js';
+
+const currentFilters = { status: "" };
 
 export function renderTrips() {
-  const filterStatus = document.getElementById('trip-filter-status')?.value || '';
+  const statusEl = document.getElementById('trip-filter-status');
+  if (statusEl) currentFilters.status = statusEl.value;
+  const filterStatus = currentFilters.status;
   let trips = store.getTrips();
   if (filterStatus) trips = trips.filter(t => t.status === filterStatus);
+  trips = sortData(trips, 'trips');
   const canEdit = store.hasFullAccess('trips');
   return `
     <div class="page-header">
@@ -26,7 +32,16 @@ export function renderTrips() {
     ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to trips</div>' : ''}
     <div class="table-container">
       <table class="data-table">
-        <thead><tr><th>Route</th><th>Vehicle</th><th>Driver</th><th>Cargo</th><th>Distance</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+        <thead><tr>
+          <th onclick="window.app.sortBy('trips', 'source')" style="cursor:pointer">Route ${renderSortIcon('trips', 'source')}</th>
+          <th onclick="window.app.sortBy('trips', 'vehicleId')" style="cursor:pointer">Vehicle ${renderSortIcon('trips', 'vehicleId')}</th>
+          <th onclick="window.app.sortBy('trips', 'driverId')" style="cursor:pointer">Driver ${renderSortIcon('trips', 'driverId')}</th>
+          <th onclick="window.app.sortBy('trips', 'cargoWeight')" style="cursor:pointer">Cargo ${renderSortIcon('trips', 'cargoWeight')}</th>
+          <th onclick="window.app.sortBy('trips', 'plannedDistance')" style="cursor:pointer">Distance ${renderSortIcon('trips', 'plannedDistance')}</th>
+          <th onclick="window.app.sortBy('trips', 'status')" style="cursor:pointer">Status ${renderSortIcon('trips', 'status')}</th>
+          <th onclick="window.app.sortBy('trips', 'createdAt')" style="cursor:pointer">Created ${renderSortIcon('trips', 'createdAt')}</th>
+          <th>Actions</th>
+        </tr></thead>
         <tbody>
           ${trips.map(t => {
     const v = store.getVehicleById(t.vehicleId);

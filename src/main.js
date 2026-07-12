@@ -2,6 +2,7 @@
 import "./style.css";
 import { store } from "./store.js";
 import { showToast } from "./utils.js";
+import { setSort } from "./sorting.js";
 import { renderDashboard, initDashboardCharts } from "./pages/dashboard.js";
 import {
   renderVehicles,
@@ -317,6 +318,11 @@ window.app = {
     } else {
       render();
     }
+  },
+
+  sortBy(page, key) {
+    setSort(page, key);
+    window.app.navigate(page);
   },
 
   handleLogin() {
