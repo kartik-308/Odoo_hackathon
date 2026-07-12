@@ -13,6 +13,16 @@ import { renderSettings, showAddUserModal, saveUser, deleteUserRecord } from './
 
 store.init();
 
+/* Theme Management */
+function getTheme() {
+  return localStorage.getItem('transitops_theme') || 'dark';
+}
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('transitops_theme', theme);
+}
+applyTheme(getTheme());
+
 const NAV_ITEMS = [
   { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', section: 'Main' },
   { id: 'vehicles', icon: 'directions_car', label: 'Vehicles', section: 'Main' },
@@ -118,11 +128,14 @@ function renderAppShell(content) {
             <input type="text" placeholder="Search vehicles, drivers, trips..." id="global-search" />
           </div>
           <div class="header-actions">
+            <button class="header-icon-btn theme-toggle" onclick="window.app.toggleTheme()" title="Toggle theme">
+              <span class="material-icons-round">${getTheme() === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            </button>
             <div class="header-icon-btn">
               <span class="material-icons-round">notifications</span>
               ${activeBadge > 0 ? '<div class="badge-dot"></div>' : ''}
             </div>
-            <div style="font-size:.8rem;color:var(--text-muted)">${user?.role || ''}</div>
+            <div style="font-size:.78rem;color:var(--text-muted)">${user?.role || ''}</div>
           </div>
         </header>
         <div class="page-content" id="page-content">
@@ -260,6 +273,13 @@ window.app = {
   editUser(id) { const users = store.getUsers(); showAddUserModal(users.find(u => u.id === id)); },
   saveUser(id) { saveUser(id); },
   deleteUserRecord(id) { deleteUserRecord(id); },
+
+  toggleTheme() {
+    const newTheme = getTheme() === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+    const icon = document.querySelector('.theme-toggle .material-icons-round');
+    if (icon) icon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+  },
 
   resetData() {
     if (confirm('Reset ALL data to defaults? This cannot be undone.')) {
