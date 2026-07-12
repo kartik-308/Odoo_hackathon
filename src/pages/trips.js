@@ -5,13 +5,13 @@ export function renderTrips() {
   const filterStatus = document.getElementById('trip-filter-status')?.value || '';
   let trips = store.getTrips();
   if (filterStatus) trips = trips.filter(t => t.status === filterStatus);
-
+  const canEdit = store.hasFullAccess('trips');
   return `
     <div class="page-header">
       <div><h1>Trip Dispatcher</h1><p>Create, dispatch, and manage trips</p></div>
       <div class="page-actions">
         <button class="btn btn-ghost btn-sm" onclick="window.app.exportTrips()"><span class="material-icons-round">download</span> Export CSV</button>
-        <button class="btn btn-primary" onclick="window.app.showAddTrip()"><span class="material-icons-round">add</span> New Trip</button>
+        ${canEdit ? `<button class="btn btn-primary" onclick="window.app.showAddTrip()"><span class="material-icons-round">add</span> New Trip</button>` : ''}
       </div>
     </div>
     <div class="filter-bar">
@@ -23,6 +23,7 @@ export function renderTrips() {
         <option value="Cancelled" ${filterStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
       </select>
     </div>
+    ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to trips</div>' : ''}
     <div class="table-container">
       <table class="data-table">
         <thead><tr><th>Route</th><th>Vehicle</th><th>Driver</th><th>Cargo</th><th>Distance</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
@@ -39,9 +40,9 @@ export function renderTrips() {
               <td>${statusBadge(t.status)}</td>
               <td>${formatDate(t.createdAt)}</td>
               <td class="table-actions">
-                ${t.status === 'Draft' ? `<button class="btn btn-success btn-sm" onclick="window.app.dispatchTrip('${t.id}')"><span class="material-icons-round">send</span></button>` : ''}
-                ${t.status === 'Dispatched' ? `<button class="btn btn-primary btn-sm" onclick="window.app.showCompleteTrip('${t.id}')"><span class="material-icons-round">check_circle</span></button>` : ''}
-                ${(t.status === 'Draft' || t.status === 'Dispatched') ? `<button class="btn btn-danger btn-sm" onclick="window.app.cancelTrip('${t.id}')"><span class="material-icons-round">cancel</span></button>` : ''}
+                ${canEdit && t.status === 'Draft' ? `<button class="btn btn-success btn-sm" onclick="window.app.dispatchTrip('${t.id}')"><span class="material-icons-round">send</span></button>` : ''}
+                ${canEdit && t.status === 'Dispatched' ? `<button class="btn btn-primary btn-sm" onclick="window.app.showCompleteTrip('${t.id}')"><span class="material-icons-round">check_circle</span></button>` : ''}
+                ${canEdit && (t.status === 'Draft' || t.status === 'Dispatched') ? `<button class="btn btn-danger btn-sm" onclick="window.app.cancelTrip('${t.id}')"><span class="material-icons-round">cancel</span></button>` : ''}
               </td>
             </tr>`;
   }).join('')}

@@ -5,7 +5,7 @@ export function renderDrivers() {
   const filterStatus = document.getElementById('drv-filter-status')?.value || '';
   let drivers = store.getDrivers();
   if (filterStatus) drivers = drivers.filter(d => d.status === filterStatus);
-
+  const canEdit = store.hasFullAccess('drivers');
   return `
     <div class="page-header">
       <div><h1>Driver Management</h1><p>Manage driver profiles and compliance</p></div>
@@ -13,9 +13,9 @@ export function renderDrivers() {
         <button class="btn btn-ghost btn-sm" onclick="window.app.exportDrivers()">
           <span class="material-icons-round">download</span> Export CSV
         </button>
-        <button class="btn btn-primary" onclick="window.app.showAddDriver()">
+        ${canEdit ? `<button class="btn btn-primary" onclick="window.app.showAddDriver()">
           <span class="material-icons-round">add</span> Add Driver
-        </button>
+        </button>` : ''}
       </div>
     </div>
     <div class="filter-bar">
@@ -27,6 +27,7 @@ export function renderDrivers() {
         <option value="Suspended" ${filterStatus === 'Suspended' ? 'selected' : ''}>Suspended</option>
       </select>
     </div>
+    ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to this page</div>' : ''}
     <div class="table-container">
       <table class="data-table">
         <thead><tr><th>Name</th><th>License #</th><th>Category</th><th>License Expiry</th><th>Contact</th><th>Safety Score</th><th>Status</th><th>Actions</th></tr></thead>
@@ -44,8 +45,10 @@ export function renderDrivers() {
               <td>${d.safetyScore} <div class="score-bar"><div class="score-bar-fill" style="width:${d.safetyScore}%;background:${scoreColor}"></div></div></td>
               <td>${statusBadge(d.status)}</td>
               <td class="table-actions">
+                ${canEdit ? `
                 <button class="btn btn-ghost btn-sm" onclick="window.app.editDriver('${d.id}')"><span class="material-icons-round">edit</span></button>
                 <button class="btn btn-ghost btn-sm" onclick="window.app.deleteDriver('${d.id}')"><span class="material-icons-round">delete</span></button>
+                ` : ''}
               </td>
             </tr>`;
   }).join('')}

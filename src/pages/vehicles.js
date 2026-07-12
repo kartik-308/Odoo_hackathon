@@ -7,6 +7,7 @@ export function renderVehicles() {
   let vehicles = store.getVehicles();
   if (filterType) vehicles = vehicles.filter(v => v.type === filterType);
   if (filterStatus) vehicles = vehicles.filter(v => v.status === filterStatus);
+  const canEdit = store.hasFullAccess('vehicles');
 
   return `
     <div class="page-header">
@@ -15,9 +16,9 @@ export function renderVehicles() {
         <button class="btn btn-ghost btn-sm" onclick="window.app.exportVehicles()">
           <span class="material-icons-round">download</span> Export CSV
         </button>
-        <button class="btn btn-primary" onclick="window.app.showAddVehicle()">
+        ${canEdit ? `<button class="btn btn-primary" onclick="window.app.showAddVehicle()">
           <span class="material-icons-round">add</span> Add Vehicle
-        </button>
+        </button>` : ''}
       </div>
     </div>
 
@@ -36,6 +37,7 @@ export function renderVehicles() {
         <option value="Retired" ${filterStatus === 'Retired' ? 'selected' : ''}>Retired</option>
       </select>
     </div>
+    ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to this page</div>' : ''}
 
     <div class="table-container">
       <table class="data-table" id="vehicles-table">
@@ -56,12 +58,14 @@ export function renderVehicles() {
               <td>${formatCurrency(v.acquisitionCost)}</td>
               <td>${statusBadge(v.status)}</td>
               <td class="table-actions">
+                ${canEdit ? `
                 <button class="btn btn-ghost btn-sm" onclick="window.app.editVehicle('${v.id}')">
                   <span class="material-icons-round">edit</span>
                 </button>
                 <button class="btn btn-ghost btn-sm" onclick="window.app.deleteVehicle('${v.id}')">
                   <span class="material-icons-round">delete</span>
                 </button>
+                ` : ''}
               </td>
             </tr>
           `).join('')}

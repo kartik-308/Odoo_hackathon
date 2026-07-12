@@ -482,6 +482,28 @@ body {
 }
 .score-bar-fill { height: 100%; border-radius: 3px; transition: width .3s ease; }
 
+/* Access Denied */
+.access-denied {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 60vh;
+}
+.access-denied-card {
+  text-align: center; padding: 2.5rem 3rem;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+  max-width: 400px;
+}
+.access-denied-card h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: .5rem; }
+.access-denied-card p { color: var(--text-muted); font-size: .85rem; }
+
+/* View-only notice */
+.view-only-banner {
+  display: flex; align-items: center; gap: .5rem;
+  background: var(--accent-blue-bg); border: 1px solid rgba(59,130,246,.2);
+  color: var(--accent-blue); padding: .55rem 1rem; border-radius: var(--radius-sm);
+  font-size: .8rem; font-weight: 500; margin-bottom: 1rem;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .login-left { display: none; }
