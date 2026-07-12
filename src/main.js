@@ -1,40 +1,103 @@
 /* ===== TransitOps Main App ===== */
-import './style.css';
-import { store } from './store.js';
-import { showToast } from './utils.js';
-import { renderDashboard, initDashboardCharts } from './pages/dashboard.js';
-import { renderVehicles, showAddVehicleModal, saveVehicle, deleteVehicle, exportVehicles } from './pages/vehicles.js';
-import { renderDrivers, showAddDriverModal, saveDriver, deleteDriver, exportDrivers } from './pages/drivers.js';
-import { renderTrips, showAddTripModal, saveTrip, dispatchTrip, showCompleteTripModal, completeTrip, cancelTrip, exportTrips } from './pages/trips.js';
-import { renderMaintenance, showAddMaintenanceModal, saveMaintenance, closeMaintenance } from './pages/maintenance.js';
-import { renderFuelExpenses, switchFuelTab, showAddFuelModal, saveFuel, showAddExpenseModal, saveExpense } from './pages/fuel.js';
-import { renderReports, initReportCharts, exportReportCSV, exportReportPDF } from './pages/reports.js';
-import { renderSettings, showAddUserModal, saveUser, deleteUserRecord } from './pages/settings.js';
+import "./style.css";
+import { store } from "./store.js";
+import { showToast } from "./utils.js";
+import { renderDashboard, initDashboardCharts } from "./pages/dashboard.js";
+import {
+  renderVehicles,
+  showAddVehicleModal,
+  saveVehicle,
+  deleteVehicle,
+  exportVehicles,
+} from "./pages/vehicles.js";
+import {
+  renderDrivers,
+  showAddDriverModal,
+  saveDriver,
+  deleteDriver,
+  exportDrivers,
+} from "./pages/drivers.js";
+import {
+  renderTrips,
+  showAddTripModal,
+  saveTrip,
+  dispatchTrip,
+  showCompleteTripModal,
+  completeTrip,
+  cancelTrip,
+  exportTrips,
+} from "./pages/trips.js";
+import {
+  renderMaintenance,
+  showAddMaintenanceModal,
+  saveMaintenance,
+  closeMaintenance,
+} from "./pages/maintenance.js";
+import {
+  renderFuelExpenses,
+  switchFuelTab,
+  showAddFuelModal,
+  saveFuel,
+  showAddExpenseModal,
+  saveExpense,
+} from "./pages/fuel.js";
+import {
+  renderReports,
+  initReportCharts,
+  exportReportCSV,
+  exportReportPDF,
+} from "./pages/reports.js";
+import {
+  renderSettings,
+  showAddUserModal,
+  saveUser,
+  deleteUserRecord,
+} from "./pages/settings.js";
 
 store.init();
 
 /* Theme Management */
 function getTheme() {
-  return localStorage.getItem('transitops_theme') || 'dark';
+  return localStorage.getItem("transitops_theme") || "dark";
 }
 function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('transitops_theme', theme);
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("transitops_theme", theme);
 }
 applyTheme(getTheme());
 
 const NAV_ITEMS = [
-  { id: 'dashboard', icon: 'dashboard', label: 'Dashboard', section: 'Main' },
-  { id: 'vehicles', icon: 'directions_car', label: 'Vehicles', section: 'Main' },
-  { id: 'drivers', icon: 'badge', label: 'Drivers', section: 'Main' },
-  { id: 'trips', icon: 'local_shipping', label: 'Trips', section: 'Operations' },
-  { id: 'maintenance', icon: 'build', label: 'Maintenance', section: 'Operations' },
-  { id: 'fuel', icon: 'local_gas_station', label: 'Fuel & Expenses', section: 'Finance' },
-  { id: 'reports', icon: 'bar_chart', label: 'Reports', section: 'Finance' },
-  { id: 'settings', icon: 'settings', label: 'Settings', section: 'System' },
+  { id: "dashboard", icon: "dashboard", label: "Dashboard", section: "Main" },
+  {
+    id: "vehicles",
+    icon: "directions_car",
+    label: "Vehicles",
+    section: "Main",
+  },
+  { id: "drivers", icon: "badge", label: "Drivers", section: "Main" },
+  {
+    id: "trips",
+    icon: "local_shipping",
+    label: "Trips",
+    section: "Operations",
+  },
+  {
+    id: "maintenance",
+    icon: "build",
+    label: "Maintenance",
+    section: "Operations",
+  },
+  {
+    id: "fuel",
+    icon: "local_gas_station",
+    label: "Fuel & Expenses",
+    section: "Finance",
+  },
+  { id: "reports", icon: "bar_chart", label: "Reports", section: "Finance" },
+  { id: "settings", icon: "settings", label: "Settings", section: "System" },
 ];
 
-let currentPage = 'dashboard';
+let currentPage = "dashboard";
 
 function renderLogin() {
   return `
@@ -76,10 +139,10 @@ function renderLogin() {
 function renderAppShell(content) {
   const user = store.getCurrentUser();
   const trips = store.getTrips();
-  const activeBadge = trips.filter(t => t.status === 'Dispatched').length;
+  const activeBadge = trips.filter((t) => t.status === "Dispatched").length;
 
   const sections = {};
-  NAV_ITEMS.forEach(item => {
+  NAV_ITEMS.forEach((item) => {
     if (!sections[item.section]) sections[item.section] = [];
     sections[item.section].push(item);
   });
@@ -92,28 +155,37 @@ function renderAppShell(content) {
           <div><h2>TransitOps</h2><span>Fleet Operations</span></div>
         </div>
         <nav class="sidebar-nav">
-          ${Object.entries(sections).map(([section, items]) => {
-            const visibleItems = items.filter(item => store.canAccess(item.id));
-            if (visibleItems.length === 0) return '';
-            return `
+          ${Object.entries(sections)
+            .map(([section, items]) => {
+              const visibleItems = items.filter((item) =>
+                store.canAccess(item.id),
+              );
+              if (visibleItems.length === 0) return "";
+              return `
             <div class="nav-section">
               <div class="nav-section-title">${section}</div>
-              ${visibleItems.map(item => `
-                <div class="nav-item ${currentPage === item.id ? 'active' : ''}" onclick="window.app.navigate('${item.id}')">
+              ${visibleItems
+                .map(
+                  (item) => `
+                <div class="nav-item ${currentPage === item.id ? "active" : ""}" onclick="window.app.navigate('${item.id}')">
                   <span class="material-icons-round">${item.icon}</span>
                   ${item.label}
-                  ${item.id === 'trips' && activeBadge > 0 ? `<span class="nav-badge">${activeBadge}</span>` : ''}
+                  ${item.id === "trips" && activeBadge > 0 ? `<span class="nav-badge">${activeBadge}</span>` : ""}
                 </div>
-              `).join('')}
+              `,
+                )
+                .join("")}
             </div>
-          `; }).join('')}
+          `;
+            })
+            .join("")}
         </nav>
         <div class="sidebar-footer">
           <div class="sidebar-user">
-            <div class="sidebar-avatar">${user?.avatar || 'U'}</div>
+            <div class="sidebar-avatar">${user?.avatar || "U"}</div>
             <div class="sidebar-user-info">
-              <div class="name">${user?.name || 'User'}</div>
-              <div class="role">${user?.role || 'Unknown'}</div>
+              <div class="name">${user?.name || "User"}</div>
+              <div class="role">${user?.role || "Unknown"}</div>
             </div>
             <button class="header-icon-btn" onclick="window.app.handleLogout()" title="Logout" style="margin-left:auto">
               <span class="material-icons-round" style="font-size:1.1rem">logout</span>
@@ -135,13 +207,13 @@ function renderAppShell(content) {
           </div>
           <div class="header-actions">
             <button class="header-icon-btn theme-toggle" onclick="window.app.toggleTheme()" title="Toggle theme">
-              <span class="material-icons-round">${getTheme() === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+              <span class="material-icons-round">${getTheme() === "dark" ? "light_mode" : "dark_mode"}</span>
             </button>
             <button class="header-icon-btn" onclick="window.app.openNotifications()" title="Notifications" id="notif-btn" style="position:relative">
               <span class="material-icons-round">notifications</span>
-              ${activeBadge > 0 ? '<div class="badge-dot"></div>' : ''}
+              ${activeBadge > 0 ? '<div class="badge-dot"></div>' : ""}
             </button>
-            <div style="font-size:.78rem;color:var(--text-muted)">${user?.role || ''}</div>
+            <div style="font-size:.78rem;color:var(--text-muted)">${user?.role || ""}</div>
           </div>
         </header>
         <div class="page-content" id="page-content">
@@ -170,36 +242,52 @@ function renderAccessDenied() {
 function getPageContent(page) {
   if (!store.canAccess(page)) return renderAccessDenied();
   switch (page) {
-    case 'dashboard': return renderDashboard();
-    case 'vehicles': return renderVehicles();
-    case 'drivers': return renderDrivers();
-    case 'trips': return renderTrips();
-    case 'maintenance': return renderMaintenance();
-    case 'fuel': return renderFuelExpenses();
-    case 'reports': return renderReports();
-    case 'settings': return renderSettings();
-    default: return renderDashboard();
+    case "dashboard":
+      return renderDashboard();
+    case "vehicles":
+      return renderVehicles();
+    case "drivers":
+      return renderDrivers();
+    case "trips":
+      return renderTrips();
+    case "maintenance":
+      return renderMaintenance();
+    case "fuel":
+      return renderFuelExpenses();
+    case "reports":
+      return renderReports();
+    case "settings":
+      return renderSettings();
+    default:
+      return renderDashboard();
   }
 }
 
 function render() {
-  const app = document.getElementById('app');
+  const app = document.getElementById("app");
   const user = store.getCurrentUser();
   if (!user) {
     app.innerHTML = renderLogin();
     setTimeout(() => {
-      const passInput = document.getElementById('login-password');
-      if (passInput) passInput.addEventListener('keydown', e => { if (e.key === 'Enter') window.app.handleLogin(); });
+      const passInput = document.getElementById("login-password");
+      if (passInput)
+        passInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") window.app.handleLogin();
+        });
     }, 50);
   } else {
     app.innerHTML = renderAppShell(getPageContent(currentPage));
     setTimeout(() => {
-      if (currentPage === 'dashboard') initDashboardCharts();
-      if (currentPage === 'reports') initReportCharts();
-      if (window.innerWidth <= 768) document.getElementById('mobile-menu').style.display = 'flex';
+      if (currentPage === "dashboard") initDashboardCharts();
+      if (currentPage === "reports") initReportCharts();
+      if (window.innerWidth <= 768)
+        document.getElementById("mobile-menu").style.display = "flex";
       // Wire up global search
-      const searchInput = document.getElementById('global-search');
-      if (searchInput) searchInput.addEventListener('input', e => window.app.globalSearch(e.target.value));
+      const searchInput = document.getElementById("global-search");
+      if (searchInput)
+        searchInput.addEventListener("input", (e) =>
+          window.app.globalSearch(e.target.value),
+        );
     }, 50);
   }
 }
@@ -208,17 +296,23 @@ function render() {
 window.app = {
   navigate(page) {
     currentPage = page;
-    const content = document.getElementById('page-content');
+    const content = document.getElementById("page-content");
     if (content) {
       content.innerHTML = getPageContent(page);
-      document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.toggle('active', el.onclick?.toString().includes(`'${page}'`));
+      document.querySelectorAll(".nav-item").forEach((el) => {
+        el.classList.toggle(
+          "active",
+          el.onclick?.toString().includes(`'${page}'`),
+        );
       });
       setTimeout(() => {
-        if (page === 'dashboard') initDashboardCharts();
-        if (page === 'reports') initReportCharts();
-        const searchInput = document.getElementById('global-search');
-        if (searchInput) searchInput.addEventListener('input', e => window.app.globalSearch(e.target.value));
+        if (page === "dashboard") initDashboardCharts();
+        if (page === "reports") initReportCharts();
+        const searchInput = document.getElementById("global-search");
+        if (searchInput)
+          searchInput.addEventListener("input", (e) =>
+            window.app.globalSearch(e.target.value),
+          );
       }, 50);
     } else {
       render();
@@ -226,11 +320,12 @@ window.app = {
   },
 
   handleLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
     if (!email || !password) {
-      document.getElementById('login-error-msg').textContent = 'Please enter email and password';
-      document.getElementById('login-error').classList.add('visible');
+      document.getElementById("login-error-msg").textContent =
+        "Please enter email and password";
+      document.getElementById("login-error").classList.add("visible");
       return;
     }
     const result = store.login(email, password);
@@ -238,23 +333,23 @@ window.app = {
       showToast(`Welcome back, ${result.user.name}!`);
       render();
     } else {
-      document.getElementById('login-error-msg').textContent = result.error;
-      document.getElementById('login-error').classList.add('visible');
+      document.getElementById("login-error-msg").textContent = result.error;
+      document.getElementById("login-error").classList.add("visible");
     }
   },
 
   handleLogout() {
     store.logout();
-    currentPage = 'dashboard';
+    currentPage = "dashboard";
     render();
-    showToast('Logged out successfully', 'info');
+    showToast("Logged out successfully", "info");
   },
 
   filterDashboard() {
-    const type = document.getElementById('dash-filter-type')?.value || '';
-    const status = document.getElementById('dash-filter-status')?.value || '';
-    const region = document.getElementById('dash-filter-region')?.value || '';
-    const content = document.getElementById('page-content');
+    const type = document.getElementById("dash-filter-type")?.value || "";
+    const status = document.getElementById("dash-filter-status")?.value || "";
+    const region = document.getElementById("dash-filter-region")?.value || "";
+    const content = document.getElementById("page-content");
     if (content) {
       content.innerHTML = renderDashboard({ type, status, region });
       setTimeout(() => initDashboardCharts(), 50);
@@ -262,153 +357,273 @@ window.app = {
   },
 
   // Vehicles
-  showAddVehicle() { showAddVehicleModal(); },
-  editVehicle(id) { showAddVehicleModal(store.getVehicleById(id)); },
-  saveVehicle(id) { saveVehicle(id); },
-  deleteVehicle(id) { deleteVehicle(id); },
-  exportVehicles() { exportVehicles(); },
+  showAddVehicle() {
+    showAddVehicleModal();
+  },
+  editVehicle(id) {
+    showAddVehicleModal(store.getVehicleById(id));
+  },
+  saveVehicle(id) {
+    saveVehicle(id);
+  },
+  deleteVehicle(id) {
+    deleteVehicle(id);
+  },
+  exportVehicles() {
+    exportVehicles();
+  },
 
   // Drivers
-  showAddDriver() { showAddDriverModal(); },
-  editDriver(id) { showAddDriverModal(store.getDriverById(id)); },
-  saveDriver(id) { saveDriver(id); },
-  deleteDriver(id) { deleteDriver(id); },
-  exportDrivers() { exportDrivers(); },
+  showAddDriver() {
+    showAddDriverModal();
+  },
+  editDriver(id) {
+    showAddDriverModal(store.getDriverById(id));
+  },
+  saveDriver(id) {
+    saveDriver(id);
+  },
+  deleteDriver(id) {
+    deleteDriver(id);
+  },
+  exportDrivers() {
+    exportDrivers();
+  },
 
   // Trips
-  showAddTrip() { showAddTripModal(); },
-  saveTrip() { saveTrip(); },
-  dispatchTrip(id) { dispatchTrip(id); },
-  showCompleteTrip(id) { showCompleteTripModal(id); },
-  completeTrip(id) { completeTrip(id); },
-  cancelTrip(id) { cancelTrip(id); },
-  exportTrips() { exportTrips(); },
+  showAddTrip() {
+    showAddTripModal();
+  },
+  saveTrip() {
+    saveTrip();
+  },
+  dispatchTrip(id) {
+    dispatchTrip(id);
+  },
+  showCompleteTrip(id) {
+    showCompleteTripModal(id);
+  },
+  completeTrip(id) {
+    completeTrip(id);
+  },
+  cancelTrip(id) {
+    cancelTrip(id);
+  },
+  exportTrips() {
+    exportTrips();
+  },
 
   // Maintenance
-  showAddMaintenance() { showAddMaintenanceModal(); },
-  saveMaintenance() { saveMaintenance(); },
-  closeMaintenance(id) { closeMaintenance(id); },
+  showAddMaintenance() {
+    showAddMaintenanceModal();
+  },
+  saveMaintenance() {
+    saveMaintenance();
+  },
+  closeMaintenance(id) {
+    closeMaintenance(id);
+  },
 
   // Fuel & Expenses
-  switchFuelTab(tab) { switchFuelTab(tab); },
-  showAddFuel() { showAddFuelModal(); },
-  saveFuel() { saveFuel(); },
-  showAddExpense() { showAddExpenseModal(); },
-  saveExpense() { saveExpense(); },
+  switchFuelTab(tab) {
+    switchFuelTab(tab);
+  },
+  showAddFuel() {
+    showAddFuelModal();
+  },
+  saveFuel() {
+    saveFuel();
+  },
+  showAddExpense() {
+    showAddExpenseModal();
+  },
+  saveExpense() {
+    saveExpense();
+  },
 
   // Reports
-  exportReportCSV() { exportReportCSV(); },
-  exportReportPDF() { exportReportPDF(); },
+  exportReportCSV() {
+    exportReportCSV();
+  },
+  exportReportPDF() {
+    exportReportPDF();
+  },
 
   // Settings
-  showAddUser() { showAddUserModal(); },
-  editUser(id) { const users = store.getUsers(); showAddUserModal(users.find(u => u.id === id)); },
-  saveUser(id) { saveUser(id); },
-  deleteUserRecord(id) { deleteUserRecord(id); },
+  showAddUser() {
+    showAddUserModal();
+  },
+  editUser(id) {
+    const users = store.getUsers();
+    showAddUserModal(users.find((u) => u.id === id));
+  },
+  saveUser(id) {
+    saveUser(id);
+  },
+  deleteUserRecord(id) {
+    deleteUserRecord(id);
+  },
 
   toggleTheme() {
-    const newTheme = getTheme() === 'dark' ? 'light' : 'dark';
+    const newTheme = getTheme() === "dark" ? "light" : "dark";
     applyTheme(newTheme);
-    const icon = document.querySelector('.theme-toggle .material-icons-round');
-    if (icon) icon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+    const icon = document.querySelector(".theme-toggle .material-icons-round");
+    if (icon)
+      icon.textContent = newTheme === "dark" ? "light_mode" : "dark_mode";
   },
 
   globalSearch(query) {
-    const dropdown = document.getElementById('search-dropdown');
+    const dropdown = document.getElementById("search-dropdown");
     if (!dropdown) return;
-    if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
-
-    const q = query.toLowerCase();
-    const vehicles = store.getVehicles().filter(v =>
-      v.regNumber.toLowerCase().includes(q) || v.name.toLowerCase().includes(q)
-    ).slice(0, 4);
-    const drivers = store.getDrivers().filter(d =>
-      d.name.toLowerCase().includes(q) || d.licenseNumber.toLowerCase().includes(q)
-    ).slice(0, 4);
-    const trips = store.getTrips().filter(t =>
-      t.source.toLowerCase().includes(q) || t.destination.toLowerCase().includes(q)
-    ).slice(0, 4);
-
-    const total = vehicles.length + drivers.length + trips.length;
-    if (total === 0) {
-      dropdown.innerHTML = '<div class="search-no-results"><span class="material-icons-round">search_off</span> No results found</div>';
-      dropdown.style.display = 'block';
+    if (!query || query.length < 2) {
+      dropdown.style.display = "none";
       return;
     }
 
-    let html = '';
+    const q = query.toLowerCase();
+    const vehicles = store
+      .getVehicles()
+      .filter(
+        (v) =>
+          v.regNumber.toLowerCase().includes(q) ||
+          v.name.toLowerCase().includes(q),
+      )
+      .slice(0, 4);
+    const drivers = store
+      .getDrivers()
+      .filter(
+        (d) =>
+          d.name.toLowerCase().includes(q) ||
+          d.licenseNumber.toLowerCase().includes(q),
+      )
+      .slice(0, 4);
+    const trips = store
+      .getTrips()
+      .filter(
+        (t) =>
+          t.source.toLowerCase().includes(q) ||
+          t.destination.toLowerCase().includes(q),
+      )
+      .slice(0, 4);
+
+    const total = vehicles.length + drivers.length + trips.length;
+    if (total === 0) {
+      dropdown.innerHTML =
+        '<div class="search-no-results"><span class="material-icons-round">search_off</span> No results found</div>';
+      dropdown.style.display = "block";
+      return;
+    }
+
+    let html = "";
     if (vehicles.length) {
       html += `<div class="search-group-label"><span class="material-icons-round">directions_car</span> Vehicles</div>`;
-      html += vehicles.map(v => `
+      html += vehicles
+        .map(
+          (v) => `
         <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('vehicles')">
           <span class="search-item-main">${v.regNumber} — ${v.name}</span>
           <span class="search-item-sub">${v.type} · ${v.status}</span>
-        </div>`).join('');
+        </div>`,
+        )
+        .join("");
     }
     if (drivers.length) {
       html += `<div class="search-group-label"><span class="material-icons-round">badge</span> Drivers</div>`;
-      html += drivers.map(d => `
+      html += drivers
+        .map(
+          (d) => `
         <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('drivers')">
           <span class="search-item-main">${d.name}</span>
           <span class="search-item-sub">${d.licenseCategory} · ${d.status}</span>
-        </div>`).join('');
+        </div>`,
+        )
+        .join("");
     }
     if (trips.length) {
       html += `<div class="search-group-label"><span class="material-icons-round">local_shipping</span> Trips</div>`;
-      html += trips.map(t => `
+      html += trips
+        .map(
+          (t) => `
         <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('trips')">
           <span class="search-item-main">${t.source} → ${t.destination}</span>
           <span class="search-item-sub">${t.status}</span>
-        </div>`).join('');
+        </div>`,
+        )
+        .join("");
     }
 
     dropdown.innerHTML = html;
-    dropdown.style.display = 'block';
+    dropdown.style.display = "block";
   },
 
   closeSearch() {
-    const d = document.getElementById('search-dropdown');
-    const i = document.getElementById('global-search');
-    if (d) d.style.display = 'none';
-    if (i) i.value = '';
+    const d = document.getElementById("search-dropdown");
+    const i = document.getElementById("global-search");
+    if (d) d.style.display = "none";
+    if (i) i.value = "";
   },
 
   openNotifications() {
     // Remove any existing panel
-    document.getElementById('notif-panel')?.remove();
+    document.getElementById("notif-panel")?.remove();
 
     const drivers = store.getDrivers();
     const maintenance = store.getMaintenanceLogs();
     const trips = store.getTrips();
     const today = new Date();
-    const soon = new Date(); soon.setDate(today.getDate() + 30);
+    const soon = new Date();
+    soon.setDate(today.getDate() + 30);
 
     const alerts = [];
 
     // Expiring / expired licenses
-    drivers.forEach(d => {
+    drivers.forEach((d) => {
       const exp = new Date(d.licenseExpiry);
       if (exp < today) {
-        alerts.push({ icon: 'error', color: 'var(--accent-red)', text: `${d.name}'s license has <strong>expired</strong>`, page: 'drivers' });
+        alerts.push({
+          icon: "error",
+          color: "var(--accent-red)",
+          text: `${d.name}'s license has <strong>expired</strong>`,
+          page: "drivers",
+        });
       } else if (exp <= soon) {
-        alerts.push({ icon: 'warning', color: 'var(--accent-orange)', text: `${d.name}'s license expires on <strong>${d.licenseExpiry}</strong>`, page: 'drivers' });
+        alerts.push({
+          icon: "warning",
+          color: "var(--accent-orange)",
+          text: `${d.name}'s license expires on <strong>${d.licenseExpiry}</strong>`,
+          page: "drivers",
+        });
       }
     });
 
     // Active maintenance
-    maintenance.filter(m => m.status === 'Active').forEach(m => {
-      const v = store.getVehicleById(m.vehicleId);
-      alerts.push({ icon: 'build', color: 'var(--accent-orange)', text: `<strong>${v?.regNumber || 'Vehicle'}</strong> is in maintenance: ${m.type}`, page: 'maintenance' });
-    });
+    maintenance
+      .filter((m) => m.status === "Active")
+      .forEach((m) => {
+        const v = store.getVehicleById(m.vehicleId);
+        alerts.push({
+          icon: "build",
+          color: "var(--accent-orange)",
+          text: `<strong>${v?.regNumber || "Vehicle"}</strong> is in maintenance: ${m.type}`,
+          page: "maintenance",
+        });
+      });
 
     // Dispatched trips
-    trips.filter(t => t.status === 'Dispatched').forEach(t => {
-      alerts.push({ icon: 'local_shipping', color: 'var(--accent-blue)', text: `Active trip: <strong>${t.source} → ${t.destination}</strong>`, page: 'trips' });
-    });
+    trips
+      .filter((t) => t.status === "Dispatched")
+      .forEach((t) => {
+        alerts.push({
+          icon: "local_shipping",
+          color: "var(--accent-blue)",
+          text: `Active trip: <strong>${t.source} → ${t.destination}</strong>`,
+          page: "trips",
+        });
+      });
 
-    const panel = document.createElement('div');
-    panel.id = 'notif-panel';
-    panel.className = 'notif-panel';
+    const panel = document.createElement("div");
+    panel.id = "notif-panel";
+    panel.className = "notif-panel";
     panel.innerHTML = `
       <div class="notif-header">
         <span>Notifications</span>
@@ -417,13 +632,18 @@ window.app = {
         </button>
       </div>
       <div class="notif-body">
-        ${alerts.length === 0
-          ? '<div class="notif-empty"><span class="material-icons-round">check_circle</span><p>All good! No alerts.</p></div>'
-          : alerts.map(a => `
+        ${
+          alerts.length === 0
+            ? '<div class="notif-empty"><span class="material-icons-round">check_circle</span><p>All good! No alerts.</p></div>'
+            : alerts
+                .map(
+                  (a) => `
             <div class="notif-item" onclick="window.app.navigate('${a.page}');document.getElementById('notif-panel')?.remove()">
               <span class="material-icons-round" style="color:${a.color}">${a.icon}</span>
               <span>${a.text}</span>
-            </div>`).join('')
+            </div>`,
+                )
+                .join("")
         }
       </div>
     `;
@@ -431,19 +651,19 @@ window.app = {
 
     // Close on outside click
     setTimeout(() => {
-      document.addEventListener('click', function handler(e) {
-        if (!panel.contains(e.target) && e.target.id !== 'notif-btn') {
+      document.addEventListener("click", function handler(e) {
+        if (!panel.contains(e.target) && e.target.id !== "notif-btn") {
           panel.remove();
-          document.removeEventListener('click', handler);
+          document.removeEventListener("click", handler);
         }
       });
     }, 10);
   },
 
   resetData() {
-    if (confirm('Reset ALL data to defaults? This cannot be undone.')) {
+    if (confirm("Reset ALL data to defaults? This cannot be undone.")) {
       store.resetAll();
-      showToast('All data reset to defaults', 'info');
+      showToast("All data reset to defaults", "info");
       this.navigate(currentPage);
     }
   },

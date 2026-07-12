@@ -1,5 +1,5 @@
-import { store } from '../store.js';
-import { formatDate, formatCurrency } from '../utils.js';
+import { store } from "../store.js";
+import { formatDate, formatCurrency } from "../utils.js";
 
 export function renderDashboard(filters = {}) {
   let vehicles = store.getVehicles();
@@ -8,20 +8,27 @@ export function renderDashboard(filters = {}) {
   const maintenance = store.getMaintenanceLogs();
 
   // Apply filters to vehicles for KPIs
-  if (filters.type) vehicles = vehicles.filter(v => v.type === filters.type);
-  if (filters.status) vehicles = vehicles.filter(v => v.status === filters.status);
-  if (filters.region) vehicles = vehicles.filter(v => v.region === filters.region);
+  if (filters.type) vehicles = vehicles.filter((v) => v.type === filters.type);
+  if (filters.status)
+    vehicles = vehicles.filter((v) => v.status === filters.status);
+  if (filters.region)
+    vehicles = vehicles.filter((v) => v.region === filters.region);
 
-  const activeVehicles = vehicles.filter(v => v.status !== 'Retired').length;
-  const availableVehicles = vehicles.filter(v => v.status === 'Available').length;
-  const inMaintenance = vehicles.filter(v => v.status === 'In Shop').length;
-  const onTrip = vehicles.filter(v => v.status === 'On Trip').length;
-  const activeTrips = trips.filter(t => t.status === 'Dispatched').length;
-  const pendingTrips = trips.filter(t => t.status === 'Draft').length;
-  const driversOnDuty = drivers.filter(d => d.status === 'On Trip').length;
-  const utilization = activeVehicles > 0 ? ((onTrip / activeVehicles) * 100).toFixed(1) : 0;
+  const activeVehicles = vehicles.filter((v) => v.status !== "Retired").length;
+  const availableVehicles = vehicles.filter(
+    (v) => v.status === "Available",
+  ).length;
+  const inMaintenance = vehicles.filter((v) => v.status === "In Shop").length;
+  const onTrip = vehicles.filter((v) => v.status === "On Trip").length;
+  const activeTrips = trips.filter((t) => t.status === "Dispatched").length;
+  const pendingTrips = trips.filter((t) => t.status === "Draft").length;
+  const driversOnDuty = drivers.filter((d) => d.status === "On Trip").length;
+  const utilization =
+    activeVehicles > 0 ? ((onTrip / activeVehicles) * 100).toFixed(1) : 0;
 
-  const recentTrips = [...trips].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+  const recentTrips = [...trips]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
 
   return `
     <div class="page-header">
@@ -33,23 +40,23 @@ export function renderDashboard(filters = {}) {
         <div class="filter-bar" style="margin-bottom:0">
           <select id="dash-filter-type" onchange="window.app.filterDashboard()">
             <option value="">All Types</option>
-            <option value="Van" ${filters.type === 'Van' ? 'selected' : ''}>Van</option>
-            <option value="Truck" ${filters.type === 'Truck' ? 'selected' : ''}>Truck</option>
-            <option value="Sedan" ${filters.type === 'Sedan' ? 'selected' : ''}>Sedan</option>
+            <option value="Van" ${filters.type === "Van" ? "selected" : ""}>Van</option>
+            <option value="Truck" ${filters.type === "Truck" ? "selected" : ""}>Truck</option>
+            <option value="Sedan" ${filters.type === "Sedan" ? "selected" : ""}>Sedan</option>
           </select>
           <select id="dash-filter-status" onchange="window.app.filterDashboard()">
             <option value="">All Status</option>
-            <option value="Available" ${filters.status === 'Available' ? 'selected' : ''}>Available</option>
-            <option value="On Trip" ${filters.status === 'On Trip' ? 'selected' : ''}>On Trip</option>
-            <option value="In Shop" ${filters.status === 'In Shop' ? 'selected' : ''}>In Shop</option>
-            <option value="Retired" ${filters.status === 'Retired' ? 'selected' : ''}>Retired</option>
+            <option value="Available" ${filters.status === "Available" ? "selected" : ""}>Available</option>
+            <option value="On Trip" ${filters.status === "On Trip" ? "selected" : ""}>On Trip</option>
+            <option value="In Shop" ${filters.status === "In Shop" ? "selected" : ""}>In Shop</option>
+            <option value="Retired" ${filters.status === "Retired" ? "selected" : ""}>Retired</option>
           </select>
           <select id="dash-filter-region" onchange="window.app.filterDashboard()">
             <option value="">All Regions</option>
-            <option value="North" ${filters.region === 'North' ? 'selected' : ''}>North</option>
-            <option value="South" ${filters.region === 'South' ? 'selected' : ''}>South</option>
-            <option value="East" ${filters.region === 'East' ? 'selected' : ''}>East</option>
-            <option value="West" ${filters.region === 'West' ? 'selected' : ''}>West</option>
+            <option value="North" ${filters.region === "North" ? "selected" : ""}>North</option>
+            <option value="South" ${filters.region === "South" ? "selected" : ""}>South</option>
+            <option value="East" ${filters.region === "East" ? "selected" : ""}>East</option>
+            <option value="West" ${filters.region === "West" ? "selected" : ""}>West</option>
           </select>
         </div>
       </div>
@@ -112,14 +119,18 @@ export function renderDashboard(filters = {}) {
         <table class="data-table">
           <thead><tr><th>Route</th><th>Status</th><th>Date</th></tr></thead>
           <tbody>
-            ${recentTrips.map(t => `
+            ${recentTrips
+              .map(
+                (t) => `
               <tr>
                 <td>${t.source} → ${t.destination}</td>
                 <td>${statusBadgeLocal(t.status)}</td>
                 <td>${formatDate(t.createdAt)}</td>
               </tr>
-            `).join('')}
-            ${recentTrips.length === 0 ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No trips yet</td></tr>' : ''}
+            `,
+              )
+              .join("")}
+            ${recentTrips.length === 0 ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No trips yet</td></tr>' : ""}
           </tbody>
         </table>
       </div>
@@ -130,11 +141,14 @@ export function renderDashboard(filters = {}) {
         <table class="data-table">
           <thead><tr><th>Vehicle</th><th>Type</th><th>Cost</th></tr></thead>
           <tbody>
-            ${maintenance.filter(m => m.status === 'Active').map(m => {
-    const v = store.getVehicleById(m.vehicleId);
-    return `<tr><td>${v ? v.regNumber : '—'}</td><td>${m.type}</td><td>${formatCurrency(m.cost)}</td></tr>`;
-  }).join('')}
-            ${maintenance.filter(m => m.status === 'Active').length === 0 ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No active maintenance</td></tr>' : ''}
+            ${maintenance
+              .filter((m) => m.status === "Active")
+              .map((m) => {
+                const v = store.getVehicleById(m.vehicleId);
+                return `<tr><td>${v ? v.regNumber : "—"}</td><td>${m.type}</td><td>${formatCurrency(m.cost)}</td></tr>`;
+              })
+              .join("")}
+            ${maintenance.filter((m) => m.status === "Active").length === 0 ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No active maintenance</td></tr>' : ""}
           </tbody>
         </table>
       </div>
@@ -143,66 +157,130 @@ export function renderDashboard(filters = {}) {
 }
 
 function statusBadgeLocal(status) {
-  const cls = status.toLowerCase().replace(/\s+/g, '-');
+  const cls = status.toLowerCase().replace(/\s+/g, "-");
   return `<span class="badge badge-${cls}">${status}</span>`;
 }
 
 export function initDashboardCharts() {
-  import('chart.js').then(({ Chart, registerables }) => {
+  import("chart.js").then(({ Chart, registerables }) => {
     Chart.register(...registerables);
-    Chart.defaults.color = '#9ca3af';
-    Chart.defaults.font.family = 'Inter';
+    Chart.defaults.color = "#a1a1aa";
+    Chart.defaults.font.family = "Inter";
+    Chart.defaults.borderColor = "rgba(255,255,255,0.06)";
 
     const vehicles = store.getVehicles();
-    const statuses = ['Available', 'On Trip', 'In Shop', 'Retired'];
-    const statusCounts = statuses.map(s => vehicles.filter(v => v.status === s).length);
-    const statusColors = ['#34d399', '#60a5fa', '#fbbf24', '#f87171'];
+    const statuses = ["Available", "On Trip", "In Shop", "Retired"];
+    const statusCounts = statuses.map(
+      (s) => vehicles.filter((v) => v.status === s).length,
+    );
+    const statusColors = ["#34d399", "#60a5fa", "#fbbf24", "#f87171"];
 
-    const ctx1 = document.getElementById('vehicleStatusChart');
+    const ctx1 = document.getElementById("vehicleStatusChart");
     if (ctx1) {
       new Chart(ctx1, {
-        type: 'doughnut',
+        type: "doughnut",
         data: {
           labels: statuses,
-          datasets: [{ data: statusCounts, backgroundColor: statusColors, borderWidth: 0, spacing: 3 }]
+          datasets: [
+            {
+              data: statusCounts,
+              backgroundColor: statusColors,
+              borderWidth: 0,
+              spacing: 4,
+              hoverOffset: 8,
+            },
+          ],
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          cutout: '65%',
-          plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10 } } }
-        }
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "70%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                padding: 18,
+                usePointStyle: true,
+                pointStyleWidth: 10,
+                color: "#a1a1aa",
+              },
+            },
+          },
+        },
       });
     }
 
     const trips = store.getTrips();
     const last7 = [];
     for (let i = 6; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i);
-      last7.push(d.toISOString().split('T')[0]);
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      last7.push(d.toISOString().split("T")[0]);
     }
-    const tripCounts = last7.map(date =>
-      trips.filter(t => t.createdAt && t.createdAt.startsWith(date)).length
+    const tripCounts = last7.map(
+      (date) =>
+        trips.filter((t) => t.createdAt && t.createdAt.startsWith(date)).length,
     );
-    const completedCounts = last7.map(date =>
-      trips.filter(t => t.completedAt && t.completedAt.startsWith(date)).length
+    const completedCounts = last7.map(
+      (date) =>
+        trips.filter((t) => t.completedAt && t.completedAt.startsWith(date))
+          .length,
     );
 
-    const ctx2 = document.getElementById('tripActivityChart');
+    const ctx2 = document.getElementById("tripActivityChart");
     if (ctx2) {
+      // Gradient bar fills matching the violet/indigo brand
+      const g1 = ctx2.getContext("2d").createLinearGradient(0, 0, 0, 260);
+      g1.addColorStop(0, "rgba(139, 92, 246, 0.95)");
+      g1.addColorStop(1, "rgba(99, 102, 241, 0.55)");
+      const g2 = ctx2.getContext("2d").createLinearGradient(0, 0, 0, 260);
+      g2.addColorStop(0, "rgba(52, 211, 153, 0.95)");
+      g2.addColorStop(1, "rgba(16, 185, 129, 0.55)");
+
       new Chart(ctx2, {
-        type: 'bar',
+        type: "bar",
         data: {
-          labels: last7.map(d => new Date(d).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })),
+          labels: last7.map((d) =>
+            new Date(d).toLocaleDateString("en-US", {
+              weekday: "short",
+              day: "numeric",
+            }),
+          ),
           datasets: [
-            { label: 'Created', data: tripCounts, backgroundColor: '#818cf8', borderRadius: 4 },
-            { label: 'Completed', data: completedCounts, backgroundColor: '#34d399', borderRadius: 4 }
-          ]
+            {
+              label: "Created",
+              data: tripCounts,
+              backgroundColor: g1,
+              borderRadius: 6,
+              borderSkipped: false,
+            },
+            {
+              label: "Completed",
+              data: completedCounts,
+              backgroundColor: g2,
+              borderRadius: 6,
+              borderSkipped: false,
+            },
+          ],
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } },
-          plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } }
-        }
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { grid: { display: false }, ticks: { color: "#71717a" } },
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1, color: "#71717a" },
+              grid: { color: "rgba(255,255,255,0.05)" },
+            },
+          },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { padding: 18, usePointStyle: true, color: "#a1a1aa" },
+            },
+          },
+        },
       });
     }
   });
