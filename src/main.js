@@ -10,6 +10,12 @@ import {
   saveVehicle,
   deleteVehicle,
   exportVehicles,
+  showVehicleDocsModal,
+  addVehicleDoc,
+  deleteVehicleDoc,
+  onDocFileSelected,
+  previewVehicleDoc,
+  downloadVehicleDoc,
 } from "./pages/vehicles.js";
 import {
   renderDrivers,
@@ -394,6 +400,24 @@ window.app = {
   exportVehicles() {
     exportVehicles();
   },
+  showVehicleDocs(id) {
+    showVehicleDocsModal(id);
+  },
+  addVehicleDoc(vehicleId) {
+    addVehicleDoc(vehicleId);
+  },
+  deleteVehicleDoc(docId, vehicleId) {
+    deleteVehicleDoc(docId, vehicleId);
+  },
+  previewVehicleDoc(docId) {
+    previewVehicleDoc(docId);
+  },
+  downloadVehicleDoc(docId) {
+    downloadVehicleDoc(docId);
+  },
+  onDocFileSelected(input) {
+    onDocFileSelected(input);
+  },
 
   // Drivers
   showAddDriver() {
@@ -643,6 +667,30 @@ window.app = {
         });
       });
 
+    // Expiring / expired vehicle documents
+    const allDocs = store.getAllVehicleDocs();
+    const todayStr = today.toISOString().split('T')[0];
+    const soonStr = soon.toISOString().split('T')[0];
+    allDocs.forEach((doc) => {
+      if (!doc.expiryDate) return;
+      const v = store.getVehicleById(doc.vehicleId);
+      const vLabel = v?.regNumber || "Vehicle";
+      if (doc.expiryDate < todayStr) {
+        alerts.push({
+          icon: "gpp_bad",
+          color: "var(--accent-red)",
+          text: `<strong>${vLabel}</strong> — ${doc.name} has <strong>expired</strong>`,
+          page: "vehicles",
+        });
+      } else if (doc.expiryDate <= soonStr) {
+        alerts.push({
+          icon: "description",
+          color: "var(--accent-orange)",
+          text: `<strong>${vLabel}</strong> — ${doc.name} expires <strong>${doc.expiryDate}</strong>`,
+          page: "vehicles",
+        });
+      }
+    });
     const panel = document.createElement("div");
     panel.id = "notif-panel";
     panel.className = "notif-panel";
