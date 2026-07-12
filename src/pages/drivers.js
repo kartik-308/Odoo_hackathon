@@ -2,7 +2,10 @@ import { store } from '../store.js';
 import { showToast, formatDate, statusBadge, createModal, closeModal, exportCSV, isLicenseExpired, licenseExpiresSoon } from '../utils.js';
 
 export function renderDrivers() {
-  const drivers = store.getDrivers();
+  const filterStatus = document.getElementById('drv-filter-status')?.value || '';
+  let drivers = store.getDrivers();
+  if (filterStatus) drivers = drivers.filter(d => d.status === filterStatus);
+
   return `
     <div class="page-header">
       <div><h1>Driver Management</h1><p>Manage driver profiles and compliance</p></div>
@@ -18,8 +21,10 @@ export function renderDrivers() {
     <div class="filter-bar">
       <select id="drv-filter-status" onchange="window.app.navigate('drivers')">
         <option value="">All Status</option>
-        <option value="Available">Available</option><option value="On Trip">On Trip</option>
-        <option value="Off Duty">Off Duty</option><option value="Suspended">Suspended</option>
+        <option value="Available" ${filterStatus === 'Available' ? 'selected' : ''}>Available</option>
+        <option value="On Trip" ${filterStatus === 'On Trip' ? 'selected' : ''}>On Trip</option>
+        <option value="Off Duty" ${filterStatus === 'Off Duty' ? 'selected' : ''}>Off Duty</option>
+        <option value="Suspended" ${filterStatus === 'Suspended' ? 'selected' : ''}>Suspended</option>
       </select>
     </div>
     <div class="table-container">
@@ -27,10 +32,10 @@ export function renderDrivers() {
         <thead><tr><th>Name</th><th>License #</th><th>Category</th><th>License Expiry</th><th>Contact</th><th>Safety Score</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           ${drivers.map(d => {
-            const expired = isLicenseExpired(d.licenseExpiry);
-            const expSoon = licenseExpiresSoon(d.licenseExpiry);
-            const scoreColor = d.safetyScore >= 80 ? '#34d399' : d.safetyScore >= 60 ? '#fbbf24' : '#f87171';
-            return `<tr>
+    const expired = isLicenseExpired(d.licenseExpiry);
+    const expSoon = licenseExpiresSoon(d.licenseExpiry);
+    const scoreColor = d.safetyScore >= 80 ? '#34d399' : d.safetyScore >= 60 ? '#fbbf24' : '#f87171';
+    return `<tr>
               <td style="font-weight:600">${d.name}</td>
               <td>${d.licenseNumber}</td>
               <td>${d.licenseCategory}</td>
@@ -43,7 +48,7 @@ export function renderDrivers() {
                 <button class="btn btn-ghost btn-sm" onclick="window.app.deleteDriver('${d.id}')"><span class="material-icons-round">delete</span></button>
               </td>
             </tr>`;
-          }).join('')}
+  }).join('')}
           ${drivers.length === 0 ? '<tr><td colspan="8"><div class="empty-state"><span class="material-icons-round">person</span><h3>No drivers registered</h3></div></td></tr>' : ''}
         </tbody>
       </table>
@@ -62,8 +67,8 @@ export function showAddDriverModal(editData = null) {
     <div class="form-row">
       <div class="form-group"><label>License Category</label>
         <select id="drv-category">
-          <option value="Light Vehicle" ${editData?.licenseCategory==='Light Vehicle'?'selected':''}>Light Vehicle</option>
-          <option value="Heavy Vehicle" ${editData?.licenseCategory==='Heavy Vehicle'?'selected':''}>Heavy Vehicle</option>
+          <option value="Light Vehicle" ${editData?.licenseCategory === 'Light Vehicle' ? 'selected' : ''}>Light Vehicle</option>
+          <option value="Heavy Vehicle" ${editData?.licenseCategory === 'Heavy Vehicle' ? 'selected' : ''}>Heavy Vehicle</option>
         </select>
       </div>
       <div class="form-group"><label>License Expiry</label><input type="date" id="drv-expiry" value="${editData?.licenseExpiry || ''}" /></div>
@@ -74,10 +79,10 @@ export function showAddDriverModal(editData = null) {
     </div>
     <div class="form-group"><label>Status</label>
       <select id="drv-status">
-        <option value="Available" ${editData?.status==='Available'?'selected':''}>Available</option>
-        <option value="On Trip" ${editData?.status==='On Trip'?'selected':''}>On Trip</option>
-        <option value="Off Duty" ${editData?.status==='Off Duty'?'selected':''}>Off Duty</option>
-        <option value="Suspended" ${editData?.status==='Suspended'?'selected':''}>Suspended</option>
+        <option value="Available" ${editData?.status === 'Available' ? 'selected' : ''}>Available</option>
+        <option value="On Trip" ${editData?.status === 'On Trip' ? 'selected' : ''}>On Trip</option>
+        <option value="Off Duty" ${editData?.status === 'Off Duty' ? 'selected' : ''}>Off Duty</option>
+        <option value="Suspended" ${editData?.status === 'Suspended' ? 'selected' : ''}>Suspended</option>
       </select>
     </div>
   `;
@@ -114,5 +119,5 @@ export function deleteDriver(id) {
 
 export function exportDrivers() {
   const drivers = store.getDrivers();
-  exportCSV(['Name','License','Category','Expiry','Contact','Safety Score','Status'], drivers.map(d => [d.name,d.licenseNumber,d.licenseCategory,d.licenseExpiry,d.contact,d.safetyScore,d.status]), 'drivers_export.csv');
+  exportCSV(['Name', 'License', 'Category', 'Expiry', 'Contact', 'Safety Score', 'Status'], drivers.map(d => [d.name, d.licenseNumber, d.licenseCategory, d.licenseExpiry, d.contact, d.safetyScore, d.status]), 'drivers_export.csv');
 }

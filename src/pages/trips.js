@@ -2,7 +2,10 @@ import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal, exportCSV } from '../utils.js';
 
 export function renderTrips() {
-  const trips = store.getTrips();
+  const filterStatus = document.getElementById('trip-filter-status')?.value || '';
+  let trips = store.getTrips();
+  if (filterStatus) trips = trips.filter(t => t.status === filterStatus);
+
   return `
     <div class="page-header">
       <div><h1>Trip Dispatcher</h1><p>Create, dispatch, and manage trips</p></div>
@@ -14,8 +17,10 @@ export function renderTrips() {
     <div class="filter-bar">
       <select id="trip-filter-status" onchange="window.app.navigate('trips')">
         <option value="">All Status</option>
-        <option value="Draft">Draft</option><option value="Dispatched">Dispatched</option>
-        <option value="Completed">Completed</option><option value="Cancelled">Cancelled</option>
+        <option value="Draft" ${filterStatus === 'Draft' ? 'selected' : ''}>Draft</option>
+        <option value="Dispatched" ${filterStatus === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+        <option value="Completed" ${filterStatus === 'Completed' ? 'selected' : ''}>Completed</option>
+        <option value="Cancelled" ${filterStatus === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
       </select>
     </div>
     <div class="table-container">
@@ -23,9 +28,9 @@ export function renderTrips() {
         <thead><tr><th>Route</th><th>Vehicle</th><th>Driver</th><th>Cargo</th><th>Distance</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
         <tbody>
           ${trips.map(t => {
-            const v = store.getVehicleById(t.vehicleId);
-            const d = store.getDriverById(t.driverId);
-            return `<tr>
+    const v = store.getVehicleById(t.vehicleId);
+    const d = store.getDriverById(t.driverId);
+    return `<tr>
               <td style="font-weight:600">${t.source} → ${t.destination}</td>
               <td>${v ? v.regNumber : '—'}</td>
               <td>${d ? d.name : '—'}</td>
@@ -39,7 +44,7 @@ export function renderTrips() {
                 ${(t.status === 'Draft' || t.status === 'Dispatched') ? `<button class="btn btn-danger btn-sm" onclick="window.app.cancelTrip('${t.id}')"><span class="material-icons-round">cancel</span></button>` : ''}
               </td>
             </tr>`;
-          }).join('')}
+  }).join('')}
           ${trips.length === 0 ? '<tr><td colspan="8"><div class="empty-state"><span class="material-icons-round">local_shipping</span><h3>No trips created</h3></div></td></tr>' : ''}
         </tbody>
       </table>
@@ -153,8 +158,8 @@ export function cancelTrip(id) {
 
 export function exportTrips() {
   const trips = store.getTrips();
-  exportCSV(['Source','Destination','Vehicle','Driver','Cargo','Distance','Status','Created'], trips.map(t => {
+  exportCSV(['Source', 'Destination', 'Vehicle', 'Driver', 'Cargo', 'Distance', 'Status', 'Created'], trips.map(t => {
     const v = store.getVehicleById(t.vehicleId); const d = store.getDriverById(t.driverId);
-    return [t.source,t.destination,v?.regNumber||'',d?.name||'',t.cargoWeight,t.plannedDistance,t.status,t.createdAt];
+    return [t.source, t.destination, v?.regNumber || '', d?.name || '', t.cargoWeight, t.plannedDistance, t.status, t.createdAt];
   }), 'trips_export.csv');
 }

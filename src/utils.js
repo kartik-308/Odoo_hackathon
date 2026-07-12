@@ -13,7 +13,11 @@ export function showToast(message, type = 'success') {
   const icon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info';
   toast.innerHTML = `<span class="material-icons-round">${icon}</span>${message}`;
   container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; setTimeout(() => toast.remove(), 300); }, 3000);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100px)';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 /** Format date string */
@@ -27,7 +31,7 @@ export function formatCurrency(amount) {
   return '$' + Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-/** Get badge class from status */
+/** Get badge HTML from status */
 export function statusBadge(status) {
   const cls = status.toLowerCase().replace(/\s+/g, '-');
   return `<span class="badge badge-${cls}">${status}</span>`;

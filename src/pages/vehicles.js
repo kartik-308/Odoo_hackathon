@@ -2,7 +2,11 @@ import { store } from '../store.js';
 import { showToast, formatCurrency, statusBadge, createModal, closeModal, exportCSV } from '../utils.js';
 
 export function renderVehicles() {
-  const vehicles = store.getVehicles();
+  const filterType = document.getElementById('veh-filter-type')?.value || '';
+  const filterStatus = document.getElementById('veh-filter-status')?.value || '';
+  let vehicles = store.getVehicles();
+  if (filterType) vehicles = vehicles.filter(v => v.type === filterType);
+  if (filterStatus) vehicles = vehicles.filter(v => v.status === filterStatus);
 
   return `
     <div class="page-header">
@@ -20,12 +24,16 @@ export function renderVehicles() {
     <div class="filter-bar">
       <select id="veh-filter-type" onchange="window.app.navigate('vehicles')">
         <option value="">All Types</option>
-        <option value="Van">Van</option><option value="Truck">Truck</option><option value="Sedan">Sedan</option>
+        <option value="Van" ${filterType === 'Van' ? 'selected' : ''}>Van</option>
+        <option value="Truck" ${filterType === 'Truck' ? 'selected' : ''}>Truck</option>
+        <option value="Sedan" ${filterType === 'Sedan' ? 'selected' : ''}>Sedan</option>
       </select>
       <select id="veh-filter-status" onchange="window.app.navigate('vehicles')">
         <option value="">All Status</option>
-        <option value="Available">Available</option><option value="On Trip">On Trip</option>
-        <option value="In Shop">In Shop</option><option value="Retired">Retired</option>
+        <option value="Available" ${filterStatus === 'Available' ? 'selected' : ''}>Available</option>
+        <option value="On Trip" ${filterStatus === 'On Trip' ? 'selected' : ''}>On Trip</option>
+        <option value="In Shop" ${filterStatus === 'In Shop' ? 'selected' : ''}>In Shop</option>
+        <option value="Retired" ${filterStatus === 'Retired' ? 'selected' : ''}>Retired</option>
       </select>
     </div>
 
@@ -82,10 +90,10 @@ export function showAddVehicleModal(editData = null) {
       <div class="form-group">
         <label>Type</label>
         <select id="veh-type">
-          <option value="Van" ${editData?.type==='Van'?'selected':''}>Van</option>
-          <option value="Truck" ${editData?.type==='Truck'?'selected':''}>Truck</option>
-          <option value="Sedan" ${editData?.type==='Sedan'?'selected':''}>Sedan</option>
-          <option value="Bus" ${editData?.type==='Bus'?'selected':''}>Bus</option>
+          <option value="Van" ${editData?.type === 'Van' ? 'selected' : ''}>Van</option>
+          <option value="Truck" ${editData?.type === 'Truck' ? 'selected' : ''}>Truck</option>
+          <option value="Sedan" ${editData?.type === 'Sedan' ? 'selected' : ''}>Sedan</option>
+          <option value="Bus" ${editData?.type === 'Bus' ? 'selected' : ''}>Bus</option>
         </select>
       </div>
       <div class="form-group">
@@ -107,19 +115,19 @@ export function showAddVehicleModal(editData = null) {
       <div class="form-group">
         <label>Region</label>
         <select id="veh-region">
-          <option value="North" ${editData?.region==='North'?'selected':''}>North</option>
-          <option value="South" ${editData?.region==='South'?'selected':''}>South</option>
-          <option value="East" ${editData?.region==='East'?'selected':''}>East</option>
-          <option value="West" ${editData?.region==='West'?'selected':''}>West</option>
+          <option value="North" ${editData?.region === 'North' ? 'selected' : ''}>North</option>
+          <option value="South" ${editData?.region === 'South' ? 'selected' : ''}>South</option>
+          <option value="East" ${editData?.region === 'East' ? 'selected' : ''}>East</option>
+          <option value="West" ${editData?.region === 'West' ? 'selected' : ''}>West</option>
         </select>
       </div>
       <div class="form-group">
         <label>Status</label>
         <select id="veh-status">
-          <option value="Available" ${editData?.status==='Available'?'selected':''}>Available</option>
-          <option value="On Trip" ${editData?.status==='On Trip'?'selected':''}>On Trip</option>
-          <option value="In Shop" ${editData?.status==='In Shop'?'selected':''}>In Shop</option>
-          <option value="Retired" ${editData?.status==='Retired'?'selected':''}>Retired</option>
+          <option value="Available" ${editData?.status === 'Available' ? 'selected' : ''}>Available</option>
+          <option value="On Trip" ${editData?.status === 'On Trip' ? 'selected' : ''}>On Trip</option>
+          <option value="In Shop" ${editData?.status === 'In Shop' ? 'selected' : ''}>In Shop</option>
+          <option value="Retired" ${editData?.status === 'Retired' ? 'selected' : ''}>Retired</option>
         </select>
       </div>
     </div>

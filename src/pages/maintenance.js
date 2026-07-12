@@ -2,7 +2,10 @@ import { store } from '../store.js';
 import { showToast, formatDate, formatCurrency, statusBadge, createModal, closeModal } from '../utils.js';
 
 export function renderMaintenance() {
-  const logs = store.getMaintenanceLogs();
+  const filterStatus = document.getElementById('maint-filter-status')?.value || '';
+  let logs = store.getMaintenanceLogs();
+  if (filterStatus) logs = logs.filter(m => m.status === filterStatus);
+
   return `
     <div class="page-header">
       <div><h1>Maintenance</h1><p>Vehicle maintenance records and workflows</p></div>
@@ -12,7 +15,9 @@ export function renderMaintenance() {
     </div>
     <div class="filter-bar">
       <select id="maint-filter-status" onchange="window.app.navigate('maintenance')">
-        <option value="">All Status</option><option value="Active">Active</option><option value="Closed">Closed</option>
+        <option value="">All Status</option>
+        <option value="Active" ${filterStatus === 'Active' ? 'selected' : ''}>Active</option>
+        <option value="Closed" ${filterStatus === 'Closed' ? 'selected' : ''}>Closed</option>
       </select>
     </div>
     <div class="table-container">
@@ -20,8 +25,8 @@ export function renderMaintenance() {
         <thead><tr><th>Vehicle</th><th>Type</th><th>Description</th><th>Cost</th><th>Start Date</th><th>End Date</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           ${logs.map(m => {
-            const v = store.getVehicleById(m.vehicleId);
-            return `<tr>
+    const v = store.getVehicleById(m.vehicleId);
+    return `<tr>
               <td style="font-weight:600">${v ? v.regNumber : '—'}</td>
               <td>${m.type}</td>
               <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.description}</td>
@@ -33,7 +38,7 @@ export function renderMaintenance() {
                 ${m.status === 'Active' ? `<button class="btn btn-success btn-sm" onclick="window.app.closeMaintenance('${m.id}')"><span class="material-icons-round">check_circle</span> Close</button>` : ''}
               </td>
             </tr>`;
-          }).join('')}
+  }).join('')}
           ${logs.length === 0 ? '<tr><td colspan="8"><div class="empty-state"><span class="material-icons-round">build</span><h3>No maintenance records</h3></div></td></tr>' : ''}
         </tbody>
       </table>

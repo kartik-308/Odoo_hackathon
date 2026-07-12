@@ -1,11 +1,16 @@
 import { store } from '../store.js';
 import { formatDate, formatCurrency } from '../utils.js';
 
-export function renderDashboard() {
-  const vehicles = store.getVehicles();
+export function renderDashboard(filters = {}) {
+  let vehicles = store.getVehicles();
   const drivers = store.getDrivers();
   const trips = store.getTrips();
   const maintenance = store.getMaintenanceLogs();
+
+  // Apply filters to vehicles for KPIs
+  if (filters.type) vehicles = vehicles.filter(v => v.type === filters.type);
+  if (filters.status) vehicles = vehicles.filter(v => v.status === filters.status);
+  if (filters.region) vehicles = vehicles.filter(v => v.region === filters.region);
 
   const activeVehicles = vehicles.filter(v => v.status !== 'Retired').length;
   const availableVehicles = vehicles.filter(v => v.status === 'Available').length;
@@ -28,23 +33,23 @@ export function renderDashboard() {
         <div class="filter-bar" style="margin-bottom:0">
           <select id="dash-filter-type" onchange="window.app.filterDashboard()">
             <option value="">All Types</option>
-            <option value="Van">Van</option>
-            <option value="Truck">Truck</option>
-            <option value="Sedan">Sedan</option>
+            <option value="Van" ${filters.type === 'Van' ? 'selected' : ''}>Van</option>
+            <option value="Truck" ${filters.type === 'Truck' ? 'selected' : ''}>Truck</option>
+            <option value="Sedan" ${filters.type === 'Sedan' ? 'selected' : ''}>Sedan</option>
           </select>
           <select id="dash-filter-status" onchange="window.app.filterDashboard()">
             <option value="">All Status</option>
-            <option value="Available">Available</option>
-            <option value="On Trip">On Trip</option>
-            <option value="In Shop">In Shop</option>
-            <option value="Retired">Retired</option>
+            <option value="Available" ${filters.status === 'Available' ? 'selected' : ''}>Available</option>
+            <option value="On Trip" ${filters.status === 'On Trip' ? 'selected' : ''}>On Trip</option>
+            <option value="In Shop" ${filters.status === 'In Shop' ? 'selected' : ''}>In Shop</option>
+            <option value="Retired" ${filters.status === 'Retired' ? 'selected' : ''}>Retired</option>
           </select>
           <select id="dash-filter-region" onchange="window.app.filterDashboard()">
             <option value="">All Regions</option>
-            <option value="North">North</option>
-            <option value="South">South</option>
-            <option value="East">East</option>
-            <option value="West">West</option>
+            <option value="North" ${filters.region === 'North' ? 'selected' : ''}>North</option>
+            <option value="South" ${filters.region === 'South' ? 'selected' : ''}>South</option>
+            <option value="East" ${filters.region === 'East' ? 'selected' : ''}>East</option>
+            <option value="West" ${filters.region === 'West' ? 'selected' : ''}>West</option>
           </select>
         </div>
       </div>
@@ -126,9 +131,9 @@ export function renderDashboard() {
           <thead><tr><th>Vehicle</th><th>Type</th><th>Cost</th></tr></thead>
           <tbody>
             ${maintenance.filter(m => m.status === 'Active').map(m => {
-              const v = store.getVehicleById(m.vehicleId);
-              return `<tr><td>${v ? v.regNumber : '—'}</td><td>${m.type}</td><td>${formatCurrency(m.cost)}</td></tr>`;
-            }).join('')}
+    const v = store.getVehicleById(m.vehicleId);
+    return `<tr><td>${v ? v.regNumber : '—'}</td><td>${m.type}</td><td>${formatCurrency(m.cost)}</td></tr>`;
+  }).join('')}
             ${maintenance.filter(m => m.status === 'Active').length === 0 ? '<tr><td colspan="3" style="text-align:center;color:var(--text-muted)">No active maintenance</td></tr>' : ''}
           </tbody>
         </table>
