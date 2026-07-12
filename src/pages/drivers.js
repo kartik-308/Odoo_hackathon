@@ -1,10 +1,16 @@
 import { store } from '../store.js';
 import { showToast, formatDate, statusBadge, createModal, closeModal, exportCSV, isLicenseExpired, licenseExpiresSoon } from '../utils.js';
+import { sortData, renderSortIcon } from '../sorting.js';
+
+const currentFilters = { status: "" };
 
 export function renderDrivers() {
-  const filterStatus = document.getElementById('drv-filter-status')?.value || '';
+  const statusEl = document.getElementById('drv-filter-status');
+  if (statusEl) currentFilters.status = statusEl.value;
+  const filterStatus = currentFilters.status;
   let drivers = store.getDrivers();
   if (filterStatus) drivers = drivers.filter(d => d.status === filterStatus);
+  drivers = sortData(drivers, 'drivers');
   const canEdit = store.hasFullAccess('drivers');
   return `
     <div class="page-header">
@@ -30,7 +36,16 @@ export function renderDrivers() {
     ${!canEdit ? '<div class="view-only-banner"><span class="material-icons-round">visibility</span> You have view-only access to this page</div>' : ''}
     <div class="table-container">
       <table class="data-table">
-        <thead><tr><th>Name</th><th>License #</th><th>Category</th><th>License Expiry</th><th>Contact</th><th>Safety Score</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr>
+          <th onclick="window.app.sortBy('drivers', 'name')" style="cursor:pointer">Name ${renderSortIcon('drivers', 'name')}</th>
+          <th onclick="window.app.sortBy('drivers', 'licenseNumber')" style="cursor:pointer">License # ${renderSortIcon('drivers', 'licenseNumber')}</th>
+          <th onclick="window.app.sortBy('drivers', 'licenseCategory')" style="cursor:pointer">Category ${renderSortIcon('drivers', 'licenseCategory')}</th>
+          <th onclick="window.app.sortBy('drivers', 'licenseExpiry')" style="cursor:pointer">License Expiry ${renderSortIcon('drivers', 'licenseExpiry')}</th>
+          <th onclick="window.app.sortBy('drivers', 'contact')" style="cursor:pointer">Contact ${renderSortIcon('drivers', 'contact')}</th>
+          <th onclick="window.app.sortBy('drivers', 'safetyScore')" style="cursor:pointer">Safety Score ${renderSortIcon('drivers', 'safetyScore')}</th>
+          <th onclick="window.app.sortBy('drivers', 'status')" style="cursor:pointer">Status ${renderSortIcon('drivers', 'status')}</th>
+          <th>Actions</th>
+        </tr></thead>
         <tbody>
           ${drivers.map(d => {
     const expired = isLicenseExpired(d.licenseExpiry);

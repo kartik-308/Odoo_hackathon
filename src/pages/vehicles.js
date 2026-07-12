@@ -7,15 +7,24 @@ import {
   closeModal,
   exportCSV,
 } from "../utils.js";
+import { sortData, renderSortIcon } from "../sorting.js";
+
+const currentFilters = { type: "", status: "" };
 
 export function renderVehicles() {
-  const filterType = document.getElementById("veh-filter-type")?.value || "";
-  const filterStatus =
-    document.getElementById("veh-filter-status")?.value || "";
+  const typeEl = document.getElementById("veh-filter-type");
+  const statusEl = document.getElementById("veh-filter-status");
+  
+  if (typeEl) currentFilters.type = typeEl.value;
+  if (statusEl) currentFilters.status = statusEl.value;
+
+  const filterType = currentFilters.type;
+  const filterStatus = currentFilters.status;
   let vehicles = store.getVehicles();
   if (filterType) vehicles = vehicles.filter((v) => v.type === filterType);
   if (filterStatus)
     vehicles = vehicles.filter((v) => v.status === filterStatus);
+  vehicles = sortData(vehicles, 'vehicles');
   const canEdit = store.hasFullAccess("vehicles");
 
   return `
@@ -56,8 +65,14 @@ export function renderVehicles() {
       <table class="data-table" id="vehicles-table">
         <thead>
           <tr>
-            <th>Reg Number</th><th>Model</th><th>Type</th><th>Max Load</th>
-            <th>Odometer</th><th>Acq. Cost</th><th>Status</th><th>Actions</th>
+            <th onclick="window.app.sortBy('vehicles', 'regNumber')" style="cursor:pointer">Reg Number ${renderSortIcon('vehicles', 'regNumber')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'name')" style="cursor:pointer">Model ${renderSortIcon('vehicles', 'name')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'type')" style="cursor:pointer">Type ${renderSortIcon('vehicles', 'type')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'maxLoad')" style="cursor:pointer">Max Load ${renderSortIcon('vehicles', 'maxLoad')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'odometer')" style="cursor:pointer">Odometer ${renderSortIcon('vehicles', 'odometer')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'acquisitionCost')" style="cursor:pointer">Acq. Cost ${renderSortIcon('vehicles', 'acquisitionCost')}</th>
+            <th onclick="window.app.sortBy('vehicles', 'status')" style="cursor:pointer">Status ${renderSortIcon('vehicles', 'status')}</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
