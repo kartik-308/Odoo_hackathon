@@ -126,18 +126,21 @@ function renderAppShell(content) {
           <button class="header-icon-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none" id="mobile-menu">
             <span class="material-icons-round">menu</span>
           </button>
-          <div class="header-search">
+          <div class="header-search" id="search-wrapper">
             <span class="material-icons-round">search</span>
-            <input type="text" placeholder="Search vehicles, drivers, trips..." id="global-search" />
+            <input type="text" placeholder="Search vehicles, drivers, trips..." id="global-search"
+              oninput="window.app.globalSearch(this.value)"
+              onkeydown="if(event.key==='Escape')window.app.closeSearch()" />
+            <div class="search-dropdown" id="search-dropdown" style="display:none"></div>
           </div>
           <div class="header-actions">
             <button class="header-icon-btn theme-toggle" onclick="window.app.toggleTheme()" title="Toggle theme">
               <span class="material-icons-round">${getTheme() === 'dark' ? 'light_mode' : 'dark_mode'}</span>
             </button>
-            <div class="header-icon-btn">
+            <button class="header-icon-btn" onclick="window.app.openNotifications()" title="Notifications" id="notif-btn" style="position:relative">
               <span class="material-icons-round">notifications</span>
               ${activeBadge > 0 ? '<div class="badge-dot"></div>' : ''}
-            </div>
+            </button>
             <div style="font-size:.78rem;color:var(--text-muted)">${user?.role || ''}</div>
           </div>
         </header>
@@ -311,20 +314,130 @@ window.app = {
   },
 
   globalSearch(query) {
-    if (!query || query.length < 2) return;
+    const dropdown = document.getElementById('search-dropdown');
+    if (!dropdown) return;
+    if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
+
     const q = query.toLowerCase();
     const vehicles = store.getVehicles().filter(v =>
       v.regNumber.toLowerCase().includes(q) || v.name.toLowerCase().includes(q)
-    );
+    ).slice(0, 4);
     const drivers = store.getDrivers().filter(d =>
       d.name.toLowerCase().includes(q) || d.licenseNumber.toLowerCase().includes(q)
-    );
+    ).slice(0, 4);
     const trips = store.getTrips().filter(t =>
       t.source.toLowerCase().includes(q) || t.destination.toLowerCase().includes(q)
-    );
-    if (vehicles.length > 0) this.navigate('vehicles');
-    else if (drivers.length > 0) this.navigate('drivers');
-    else if (trips.length > 0) this.navigate('trips');
+    ).slice(0, 4);
+
+    const total = vehicles.length + drivers.length + trips.length;
+    if (total === 0) {
+      dropdown.innerHTML = '<div class="search-no-results"><span class="material-icons-round">search_off</span> No results found</div>';
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    let html = '';
+    if (vehicles.length) {
+      html += `<div class="search-group-label"><span class="material-icons-round">directions_car</span> Vehicles</div>`;
+      html += vehicles.map(v => `
+        <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('vehicles')">
+          <span class="search-item-main">${v.regNumber} — ${v.name}</span>
+          <span class="search-item-sub">${v.type} · ${v.status}</span>
+        </div>`).join('');
+    }
+    if (drivers.length) {
+      html += `<div class="search-group-label"><span class="material-icons-round">badge</span> Drivers</div>`;
+      html += drivers.map(d => `
+        <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('drivers')">
+          <span class="search-item-main">${d.name}</span>
+          <span class="search-item-sub">${d.licenseCategory} · ${d.status}</span>
+        </div>`).join('');
+    }
+    if (trips.length) {
+      html += `<div class="search-group-label"><span class="material-icons-round">local_shipping</span> Trips</div>`;
+      html += trips.map(t => `
+        <div class="search-item" onclick="window.app.closeSearch();window.app.navigate('trips')">
+          <span class="search-item-main">${t.source} → ${t.destination}</span>
+          <span class="search-item-sub">${t.status}</span>
+        </div>`).join('');
+    }
+
+    dropdown.innerHTML = html;
+    dropdown.style.display = 'block';
+  },
+
+  closeSearch() {
+    const d = document.getElementById('search-dropdown');
+    const i = document.getElementById('global-search');
+    if (d) d.style.display = 'none';
+    if (i) i.value = '';
+  },
+
+  openNotifications() {
+    // Remove any existing panel
+    document.getElementById('notif-panel')?.remove();
+
+    const drivers = store.getDrivers();
+    const maintenance = store.getMaintenanceLogs();
+    const trips = store.getTrips();
+    const today = new Date();
+    const soon = new Date(); soon.setDate(today.getDate() + 30);
+
+    const alerts = [];
+
+    // Expiring / expired licenses
+    drivers.forEach(d => {
+      const exp = new Date(d.licenseExpiry);
+      if (exp < today) {
+        alerts.push({ icon: 'error', color: 'var(--accent-red)', text: `${d.name}'s license has <strong>expired</strong>`, page: 'drivers' });
+      } else if (exp <= soon) {
+        alerts.push({ icon: 'warning', color: 'var(--accent-orange)', text: `${d.name}'s license expires on <strong>${d.licenseExpiry}</strong>`, page: 'drivers' });
+      }
+    });
+
+    // Active maintenance
+    maintenance.filter(m => m.status === 'Active').forEach(m => {
+      const v = store.getVehicleById(m.vehicleId);
+      alerts.push({ icon: 'build', color: 'var(--accent-orange)', text: `<strong>${v?.regNumber || 'Vehicle'}</strong> is in maintenance: ${m.type}`, page: 'maintenance' });
+    });
+
+    // Dispatched trips
+    trips.filter(t => t.status === 'Dispatched').forEach(t => {
+      alerts.push({ icon: 'local_shipping', color: 'var(--accent-blue)', text: `Active trip: <strong>${t.source} → ${t.destination}</strong>`, page: 'trips' });
+    });
+
+    const panel = document.createElement('div');
+    panel.id = 'notif-panel';
+    panel.className = 'notif-panel';
+    panel.innerHTML = `
+      <div class="notif-header">
+        <span>Notifications</span>
+        <button class="modal-close" onclick="document.getElementById('notif-panel').remove()">
+          <span class="material-icons-round">close</span>
+        </button>
+      </div>
+      <div class="notif-body">
+        ${alerts.length === 0
+          ? '<div class="notif-empty"><span class="material-icons-round">check_circle</span><p>All good! No alerts.</p></div>'
+          : alerts.map(a => `
+            <div class="notif-item" onclick="window.app.navigate('${a.page}');document.getElementById('notif-panel')?.remove()">
+              <span class="material-icons-round" style="color:${a.color}">${a.icon}</span>
+              <span>${a.text}</span>
+            </div>`).join('')
+        }
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    // Close on outside click
+    setTimeout(() => {
+      document.addEventListener('click', function handler(e) {
+        if (!panel.contains(e.target) && e.target.id !== 'notif-btn') {
+          panel.remove();
+          document.removeEventListener('click', handler);
+        }
+      });
+    }, 10);
   },
 
   resetData() {
